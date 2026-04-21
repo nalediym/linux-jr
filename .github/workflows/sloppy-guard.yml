@@ -1,8 +1,7 @@
 name: Sloppy Guard
 
 on:
-  pull_request:
-    branches: [main]
+  pull_request:    # every PR, regardless of target branch — covers stacked PRs
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
