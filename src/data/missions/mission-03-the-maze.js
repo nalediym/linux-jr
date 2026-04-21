@@ -1,7 +1,7 @@
 export const MISSION_THE_MAZE = {
   id: 'the-maze',
   title: 'The Maze',
-  story: "Bingo wandered into the basement and got lost in a maze! Each room has a clue about which way to go. Navigate through the maze to find her!",
+  story: "Pip wandered into the basement and got lost in a maze! Each room has a clue about which way to go. Navigate through the maze to find them!",
   audio: {
     intro: 'mission-03-intro',
     complete: 'mission-03-complete',
@@ -11,11 +11,11 @@ export const MISSION_THE_MAZE = {
       '.hint': 'Hint: The maze entrance is just ahead. Type: cd entrance',
       entrance: {
         '.hint': 'Hint: Read the note! It tells you which way to go first.',
-        'sign.txt': 'WELCOME TO THE MAZE\nRule 1: Read the notes.\nRule 2: Go back with cd ..\nRule 3: Bingo is waiting at the end!',
+        'sign.txt': 'WELCOME TO THE MAZE\nRule 1: Read the notes.\nRule 2: Go back with cd ..\nRule 3: Pip is waiting at the end!',
         'note.txt': 'The first step is always LEFT. (Try: cd left)',
         left: {
           '.hint': 'Hint: Read the note. It says which direction to go next.',
-          'note.txt': 'Good choice! You hear Bingo giggling somewhere deeper.\nGo DOWN from here.',
+          'note.txt': 'Good choice! You hear Pip giggling somewhere deeper.\nGo DOWN from here.',
           right: {
             '.hint': 'Hint: Dead end! Use "cd .." to go back.',
             'note.txt': 'Dead end! Just a spider. Go back with: cd ..',
@@ -25,15 +25,15 @@ export const MISSION_THE_MAZE = {
             'note.txt': 'A fork in the path! One way smells like cookies, the other like old socks.\nThe COOKIE smell is RIGHT.',
             left: {
               'note.txt': 'Eww! Old socks! This is a dead end.\nGo back: cd ..',
-              'old-sock.txt': 'A very stinky sock. Definitely not where Bingo is.',
+              'old-sock.txt': 'A very stinky sock. Definitely not where Pip is.',
             },
             right: {
               'note.txt': 'The cookies smell stronger! You must be getting close.\nKeep going DOWN.',
               down: {
-                'note.txt': 'Almost there! You can hear Bingo singing.\nShe is hiding in the SECRET room. Look carefully...',
+                'note.txt': 'Almost there! You can hear Pip singing.\nThey are hiding in the SECRET room. Look carefully...',
                 '.secret': {
-                  'bingo.txt': 'FLAG{bingo_found}\n\n"You FOUND me!" says Bingo.\n"That was the best maze ever! Let\'s do it again!"\n\nBingo gives you a high five!',
-                  'cookies.txt': 'A plate of fresh chocolate chip cookies. Bingo was snacking while she waited!',
+                  'pip.txt': 'FLAG{pip_found}\n\n"You FOUND me!" says Pip.\n"That was the best maze ever! Let\'s do it again!"\n\nPip gives you a high five!',
+                  'cookies.txt': 'A plate of fresh chocolate chip cookies. Pip was snacking while they waited!',
                 },
                 'empty-room.txt': 'Nothing here but echoes. The secret room must be hidden...',
               },
@@ -42,7 +42,7 @@ export const MISSION_THE_MAZE = {
         },
         right: {
           'note.txt': 'Oops! A wall. This is not the way.\nTry going LEFT instead. Use: cd ..',
-          'wall.txt': 'Just a brick wall with "Bluey woz here" scratched into it.',
+          'wall.txt': 'Just a brick wall with "Pip woz here" scratched into it.',
         },
       },
       'readme.txt': 'The maze entrance is just ahead. Type: cd entrance',
@@ -75,9 +75,9 @@ export const MISSION_THE_MAZE = {
       check: { type: 'pwd_equals', path: '/basement/entrance/left/down/right/down' },
     },
     {
-      description: 'Bingo is in a SECRET room. Hidden things start with a dot... (try: ls)',
+      description: 'Pip is in a SECRET room. Hidden things start with a dot... (try: ls)',
       audio: 'mission-03-task-06',
-      check: { type: 'output_contains', text: 'FLAG{bingo_found}' },
+      check: { type: 'output_contains', text: 'FLAG{pip_found}' },
     },
   ],
 }

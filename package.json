@@ -2,6 +2,12 @@
   "name": "linux-jr",
   "private": true,
   "version": "0.1.0",
+  "description": "A browser-based Linux terminal for kids (age 7+). Teaches real Linux commands through missions, not lessons.",
+  "homepage": "https://linux-jr.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nalediym/linux-jr.git"
+  },
   "type": "module",
   "scripts": {
     "dev": "vite",
