@@ -28,6 +28,34 @@ bun run lint         # ESLint
 - localStorage for progress, autosave, and session log
 - iPad-first, portrait mode PWA
 
+## Mission intro shape (locked)
+
+Keep the mission intro to a **single short summary**, not multi-speaker
+dialogue. The shape is:
+
+```
+=== Mission Title ===
+
+[one-paragraph story — the premise, narrated by TTS]
+
+Mission: <current task description>
+
+Type help if you get stuck.
+```
+
+**Do not** reintroduce any of: per-speaker lines (`<rex>`, `<pip>`), IRC
+channel framing (`#workshop`, `*** joined`, `*** topic:`), nickname login,
+message stagger/typing indicators, sprocket inline captions, real-world
+callbacks, ethos-reflection beats, or badge banners. These were explored
+on the `engine/terminal-extension` branch and rejected as "too advanced" —
+the user prefers a small readable summary that gets out of the way so the
+kid can start typing.
+
+The mission data schema stays minimal: `id`, `title`, `story`, `audio`,
+`filesystem`, `tasks` with `check` types. If a world-bible pedagogy beat
+needs to ship, fold it into the `story` paragraph — don't branch the
+engine to render more shapes.
+
 ## Architecture
 
 No routing. Single-page app. The terminal IS the whole product.
