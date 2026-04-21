@@ -1,0 +1,34 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0a0a0a;
+  --terminal-green: #4ade80;
+  --terminal-dim: #6b7280;
+  --terminal-blue: #60a5fa;
+  --terminal-yellow: #fbbf24;
+  --terminal-red: #f87171;
+  --text: #e5e7eb;
+  --font-mono: 'Courier New', monospace;
+  --font-ui: 'Fredoka Variable', sans-serif;
+}
+
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--terminal-green);
+  font-family: var(--font-mono);
+}
+
+/* iPad PWA full-screen */
+@supports (padding: env(safe-area-inset-top)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
