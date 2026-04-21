@@ -29,11 +29,17 @@ jobs:
       - name: Run tests
         working-directory: cli
         run: bun run test
-      - name: Smoke test CLI binary
-        working-directory: cli
+      - name: Smoke test CLI from packed tarball (no workspace pollution)
         run: |
-          node dist/cli.js --version
-          node dist/cli.js --help
+          set -e
+          cd cli && npm pack
+          TARBALL=$(ls linuxjr-*.tgz | head -1)
+          mkdir -p /tmp/linuxjr-smoke
+          cd /tmp/linuxjr-smoke
+          npm init -y > /dev/null
+          npm install --no-audit --no-fund "$GITHUB_WORKSPACE/cli/$TARBALL"
+          ./node_modules/.bin/linuxjr --version
+          ./node_modules/.bin/linuxjr --help
 
   publish:
     name: Publish to npm (OIDC Trusted Publisher)
