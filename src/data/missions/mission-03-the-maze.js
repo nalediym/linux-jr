@@ -1,7 +1,7 @@
 export const MISSION_THE_MAZE = {
   id: 'the-maze',
   title: 'The Maze',
-  story: "Pip wandered into the basement and got lost in a maze! Each room has a clue about which way to go. Navigate through the maze to find them!",
+  story: "Captain Rex's log: Pip took Sprocket down to the basement and got a bit turned around. Sprocket is beeping from somewhere deep. Each room has a clue — would you help us find them?",
   audio: {
     intro: 'mission-03-intro',
     complete: 'mission-03-complete',
@@ -15,7 +15,7 @@ export const MISSION_THE_MAZE = {
         'note.txt': 'The first step is always LEFT. (Try: cd left)',
         left: {
           '.hint': 'Hint: Read the note. It says which direction to go next.',
-          'note.txt': 'Good choice! You hear Pip giggling somewhere deeper.\nGo DOWN from here.',
+          'note.txt': 'Good choice! You hear Pip giggling and Sprocket beeping somewhere deeper.\nGo DOWN from here.',
           right: {
             '.hint': 'Hint: Dead end! Use "cd .." to go back.',
             'note.txt': 'Dead end! Just a spider. Go back with: cd ..',
@@ -32,7 +32,7 @@ export const MISSION_THE_MAZE = {
               down: {
                 'note.txt': 'Almost there! You can hear Pip singing.\nThey are hiding in the SECRET room. Look carefully...',
                 '.secret': {
-                  'pip.txt': 'FLAG{pip_found}\n\n"You FOUND me!" says Pip.\n"That was the best maze ever! Let\'s do it again!"\n\nPip gives you a high five!',
+                  'pip.txt': 'FLAG{pip_found}\n\n"You FOUND us!" says Pip.\n"Sprocket was down here the whole time — beep-boop!"\n"That was the best maze ever! Let\'s do it again!"\n\nPip gives you a high five!',
                   'cookies.txt': 'A plate of fresh chocolate chip cookies. Pip was snacking while they waited!',
                 },
                 'empty-room.txt': 'Nothing here but echoes. The secret room must be hidden...',

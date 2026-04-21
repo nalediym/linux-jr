@@ -1,14 +1,14 @@
 export const MISSION_SECRET_CODE = {
   id: 'secret-code',
   title: 'The Secret Code',
-  story: "Someone locked Captain Rex's computer with a 4-digit code! The digits are hidden in files across the workshop. Find all four clues to crack the code.",
+  story: "Captain Rex's log: I did the thing. I forgot my own password. Years ago I left myself clues around the workshop for exactly this — four digits, one clue each. Would you help me find them all?",
   audio: {
     intro: 'mission-02-intro',
     complete: 'mission-02-complete',
   },
   filesystem: {
     workshop: {
-      '.hint': 'Hint: There are 4 digits hidden in files. Use "ls" to see rooms, "cd" to enter, "cat" to read files.',
+      '.hint': 'Hint: Captain Rex left himself 4 digit clues around the workshop. Use "ls" to see rooms, "cd" to enter, "cat" to read files.',
       garage: {
         '.hint': 'Hint: Check every file in here. Also look inside the workbench room!',
         'toolbox.txt': 'Wrenches, spanners, and a note taped to the wall:\n"The FIRST digit is how many wheels on a bike."',
@@ -29,7 +29,7 @@ export const MISSION_SECRET_CODE = {
       },
       study: {
         '.hint': 'Hint: The computer needs the code. Did you find all 4 digits? Think about the answers to each riddle!',
-        'computer.txt': 'The screen says: ENTER 4-DIGIT CODE TO UNLOCK\nYou need to find all four digits first!',
+        'computer.txt': 'The screen shows: ENTER 4-DIGIT CODE TO UNLOCK\n\nA sticky note beside the keyboard reads:\n"Rex — you know what to do. The clues are where you left them. -Past Rex"',
         'bookshelf.txt': 'Books about rockets, dogs, and one called "Binary for Beginners". Interesting.',
         'desk-drawer.txt': 'Pencils, erasers, and a photo of Pip and a friend at the beach.',
       },

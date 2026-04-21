@@ -1,7 +1,7 @@
 export const MISSION_FIND_THE_FLAG = {
   id: 'find-the-flag',
   title: 'The Missing Blueprint',
-  story: "Pip hid a secret blueprint somewhere in the workshop. They said it's in a room you can't see at first. Can you find it?",
+  story: "Captain Rex's log: ever lose something in your own room? Pip did. They hid Sprocket's blueprint somewhere in the workshop and forgot where. Pip asked — would you help us find it?",
   // Audio key for pre-generated ElevenLabs narration (falls back to TTS if missing)
   audio: {
     intro: 'mission-01-intro',
@@ -23,7 +23,7 @@ export const MISSION_FIND_THE_FLAG = {
       },
       'secret-room': {
         '.hint': 'Hint: Hidden files start with a dot. Use "ls" and look carefully at EVERY name...',
-        '.hidden-blueprint.txt': 'FLAG{you_found_it_hacker}\n\nPip\'s secret blueprint for a robot cat!\nGreat work finding this hidden file!',
+        '.hidden-blueprint.txt': 'FLAG{you_found_it_hacker}\n\nPip\'s blueprint for Sprocket — the half-built robot cat!\n(Sprocket is now beeping happily somewhere in the workshop.)\nGreat work finding this hidden file!',
         'note.txt': 'Pip was here! The really secret stuff starts with a dot...',
       },
       'readme.txt': 'Welcome to the workshop! Look around using ls and cd into rooms.',
