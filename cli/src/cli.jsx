@@ -119,10 +119,11 @@ function MissionRunner({ mission, index, total, onComplete }) {
     setInput('')
     if (!trimmed) return
 
-    if (trimmed === 'quit' || trimmed === 'exit') {
+    const lowered = trimmed.toLowerCase()
+    if (lowered === 'quit' || lowered === 'exit') {
       process.exit(0)
     }
-    if (done && trimmed === 'next') {
+    if (done && lowered === 'next') {
       onComplete()
       return
     }
