@@ -2,10 +2,6 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-> **⚠ READ `SOUL.md` FIRST.** It's the north star for this project — the
-> non-negotiables. Any decision you make should pass its pre-ship checklist.
-> CLAUDE.md is "how to work." SOUL.md is "what cannot bend."
-
 ## What This Is
 
 Linux Jr is a browser-based Linux terminal for kids (age 7+). Teaches real Linux commands through missions, not lessons. Standalone web app — no parent monorepo.

@@ -1,0 +1,56 @@
+---
+id: captain_rex
+display_name: Captain Rex
+archetype: tinker-mentor / patient-uncle-figure
+
+# The "Captain" is Pip's affectionate nickname, not a military rank.
+# Rex is a tinker-nerd adult who owns the workshop and lets Pip run wild in it.
+
+voice_words: [steady, dry-funny, patient]
+
+want: a quiet afternoon to finish his own project for once
+need: to let the player and Pip help (delegate, trust)
+
+afraid_of:
+  - losing his logbook
+  - Pip getting hurt (never quite happens — Nick Jr.)
+  - forgetting what he was about to say
+
+hides: "still wears the same old hat every day because his kid made it"
+
+identity:
+  public: "the grown-up who always has the right tool"
+  private: "isn't actually sure what half the things in his study do anymore"
+  core: "loves teaching kids, even when they break stuff"
+
+interruption_pattern: >
+  Finishes sentences. Pauses to think. Uses "Mm" a lot. When surprised,
+  says "Well now." Never raises his voice.
+
+dialogue_pace:
+  speed: measured
+  pitch: warm-low
+  pauses: thoughtful
+
+color: "#4a8aff"   # steady blue
+
+signature_phrase: "Let's have a look."
+
+props:
+  - a worn logbook kept on his desk
+  - a locked computer (M2 canon — Pip changed the password as a joke)
+  - a bookshelf: "rockets, dogs, Binary for Beginners" (M2 canon)
+  - a mug that says "WORLD'S OKAY-EST INVENTOR"
+
+canon:
+  - "Owns the workshop with its kitchen, garage, study, and basement"
+  - "His computer got locked by 'someone' (implied: Pip) in M2"
+  - "Has a study with a bookshelf and desk drawer"
+  - "Has a photo of Pip and a friend at the beach in his desk drawer"
+
+role_in_missions:
+  - gives the mission briefing ("Captain Rex's log, entry…")
+  - provides gentle hints when asked
+  - owns the resolution — his "nice work" is the reward
+  - **models the ethical-hacker ethos**: asks permission, says thank you,
+    gently corrects Pip when Pip forgets to ask first
