@@ -14,7 +14,7 @@ export function getMission(id) {
 
 export function getCompletedMissionIds() {
   try {
-    const saved = JSON.parse(localStorage.getItem('nawazi-progress') || '{}')
+    const saved = JSON.parse(localStorage.getItem('linuxjr-progress') || '{}')
     return saved.missionsCompleted || []
   } catch {
     return []

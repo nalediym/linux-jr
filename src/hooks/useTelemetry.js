@@ -10,7 +10,7 @@
  *   - mission completion times
  */
 
-const STORAGE_KEY = 'nawazi-telemetry'
+const STORAGE_KEY = 'linuxjr-telemetry'
 
 function load() {
   try {
