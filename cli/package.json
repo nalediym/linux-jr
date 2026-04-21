@@ -1,0 +1,47 @@
+{
+  "name": "linuxjr",
+  "version": "0.1.0",
+  "description": "A browser-based Linux terminal for kids (age 7+), now in your real terminal. Learn Linux commands through missions, not lessons.",
+  "keywords": [
+    "linux",
+    "terminal",
+    "kids",
+    "education",
+    "cli",
+    "learning"
+  ],
+  "homepage": "https://linux-jr.vercel.app",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nalediym/linux-jr.git",
+    "directory": "cli"
+  },
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "linuxjr": "dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsup && chmod +x dist/cli.js",
+    "dev": "tsup --watch --onSuccess 'chmod +x dist/cli.js && node dist/cli.js'",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "prepublishOnly": "bun run build && bun run test"
+  },
+  "dependencies": {
+    "ink": "^5.1.0",
+    "ink-text-input": "^6.0.0",
+    "react": "^18.3.1"
+  },
+  "devDependencies": {
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
+  }
+}

@@ -1,0 +1,78 @@
+name: CLI
+
+on:
+  push:
+    branches: [main]
+    tags: ['cli-v*']
+  pull_request:
+    paths:
+      - 'cli/**'
+      - 'src/components/**'
+      - 'src/data/missions/**'
+      - 'package.json'
+      - 'bun.lock'
+      - '.github/workflows/cli.yml'
+
+jobs:
+  test:
+    name: Build & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: Build CLI
+        working-directory: cli
+        run: bun run build
+      - name: Run tests
+        working-directory: cli
+        run: bun run test
+      - name: Smoke test CLI from packed tarball (no workspace pollution)
+        run: |
+          set -e
+          cd cli && npm pack
+          TARBALL=$(ls linuxjr-*.tgz | head -1)
+          mkdir -p /tmp/linuxjr-smoke
+          cd /tmp/linuxjr-smoke
+          npm init -y > /dev/null
+          npm install --no-audit --no-fund "$GITHUB_WORKSPACE/cli/$TARBALL"
+          ./node_modules/.bin/linuxjr --version
+          ./node_modules/.bin/linuxjr --help
+
+  publish:
+    name: Publish to npm (OIDC Trusted Publisher)
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/cli-v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Upgrade npm to >= 11.5.1 (required for OIDC trusted publishing)
+        run: npm install -g npm@latest
+      - run: bun install --frozen-lockfile
+      - name: Build CLI
+        working-directory: cli
+        run: bun run build
+      - name: Verify tag matches package version
+        working-directory: cli
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#cli-v}"
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)"
+            exit 1
+          fi
+      - name: Publish
+        working-directory: cli
+        run: npm publish --access public

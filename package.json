@@ -9,11 +9,17 @@
     "url": "https://github.com/nalediym/linux-jr.git"
   },
   "type": "module",
+  "workspaces": [
+    "cli"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cli:build": "bun run --filter linuxjr build",
+    "cli:test": "bun run --filter linuxjr test",
+    "cli:dev": "bun run --filter linuxjr dev"
   },
   "dependencies": {
     "@fontsource-variable/fredoka": "^5.2.10",
