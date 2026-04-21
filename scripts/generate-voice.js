@@ -66,7 +66,7 @@ const VOICE_MANIFEST = [
   // Mission 01: The Missing Blueprint
   {
     key: 'mission-01-intro',
-    text: "Bingo hid a secret blueprint somewhere in the workshop. She says it's in a room you can't see at first. Can you find it?",
+    text: "Pip hid a secret blueprint somewhere in the workshop. They said it's in a room you can't see at first. Can you find it?",
   },
   { key: 'mission-01-task-01', text: 'Figure out where you are. Try typing pwd.' },
   { key: 'mission-01-task-02', text: 'Now look around the workshop. Try typing ls.' },
@@ -77,7 +77,7 @@ const VOICE_MANIFEST = [
   },
   {
     key: 'mission-01-complete',
-    text: "Mission complete! You found the flag. You are a hacker! Bingo's blueprint was hidden in a secret file.",
+    text: "Mission complete! You found the flag. You are a hacker! Pip's blueprint was hidden in a secret file.",
   },
 ]
 

@@ -1,7 +1,7 @@
 export const MISSION_FIND_THE_FLAG = {
   id: 'find-the-flag',
   title: 'The Missing Blueprint',
-  story: "Bingo hid a secret blueprint somewhere in the workshop. She says it's in a room you can't see at first. Can you find it?",
+  story: "Pip hid a secret blueprint somewhere in the workshop. They said it's in a room you can't see at first. Can you find it?",
   // Audio key for pre-generated ElevenLabs narration (falls back to TTS if missing)
   audio: {
     intro: 'mission-01-intro',
@@ -18,13 +18,13 @@ export const MISSION_FIND_THE_FLAG = {
       },
       kitchen: {
         '.hint': 'Hint: No blueprints in the kitchen. Try "cd .." to go back.',
-        'recipe.txt': 'Bluey pancakes: flour, eggs, blue food coloring. Yum!',
+        'recipe.txt': 'Pancakes: flour, eggs, milk, a drop of vanilla. Yum!',
         'shopping-list.txt': 'Bananas, milk, and... wait, this is not a blueprint.',
       },
       'secret-room': {
         '.hint': 'Hint: Hidden files start with a dot. Use "ls" and look carefully at EVERY name...',
-        '.hidden-blueprint.txt': 'FLAG{you_found_it_hacker}\n\nBingo\'s secret blueprint for a robot dog!\nGreat work finding this hidden file!',
-        'note.txt': 'Bingo was here! The really secret stuff starts with a dot...',
+        '.hidden-blueprint.txt': 'FLAG{you_found_it_hacker}\n\nPip\'s secret blueprint for a robot cat!\nGreat work finding this hidden file!',
+        'note.txt': 'Pip was here! The really secret stuff starts with a dot...',
       },
       'readme.txt': 'Welcome to the workshop! Look around using ls and cd into rooms.',
     },

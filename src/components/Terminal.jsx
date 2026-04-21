@@ -262,38 +262,24 @@ export default function Terminal() {
         fontFamily: 'var(--font-ui)',
       }}>
         <h1 style={{
-          fontSize: '1.8rem',
+          fontSize: '2.4rem',
           color: 'var(--terminal-green)',
           fontFamily: 'var(--font-mono)',
           textAlign: 'center',
+          margin: 0,
         }}>
           Linux Jr
         </h1>
-        <div style={{
+        <p style={{
           color: 'var(--text)',
-          fontSize: '1rem',
-          textAlign: 'left',
-          maxWidth: '500px',
-          lineHeight: 1.7,
-          background: '#1a1a1a',
-          padding: '1.5rem',
-          borderRadius: '12px',
-          border: '1px solid #333',
+          fontSize: '1.1rem',
+          textAlign: 'center',
+          maxWidth: '420px',
+          lineHeight: 1.6,
+          margin: 0,
         }}>
-          <p style={{ marginBottom: '1rem' }}>
-            This is a personal, non-commercial project made for family use.
-          </p>
-          <p style={{ marginBottom: '1rem' }}>
-            It references characters and themes from <strong>Bluey</strong> (Ludo Studio / BBC Studios).
-            These are used under fair use for personal, educational purposes only and are not
-            affiliated with or endorsed by the copyright holders.
-          </p>
-          <p>
-            By continuing, you acknowledge that this project contains copyrighted material
-            used without permission for non-commercial, personal use, and that it is not
-            intended for redistribution or sale.
-          </p>
-        </div>
+          Real Linux commands. Real missions. Type <code style={{ color: 'var(--terminal-green)' }}>help</code> if you get stuck.
+        </p>
         <button
           onClick={handleAccept}
           style={{
@@ -310,7 +296,7 @@ export default function Terminal() {
             fontWeight: 600,
           }}
         >
-          I understand
+          Let&apos;s hack
         </button>
       </div>
     )

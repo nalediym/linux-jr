@@ -1,7 +1,7 @@
 export const MISSION_SECRET_CODE = {
   id: 'secret-code',
   title: 'The Secret Code',
-  story: "Someone locked Bandit's computer with a 4-digit code! The digits are hidden in files across the workshop. Find all four clues to crack the code.",
+  story: "Someone locked Captain Rex's computer with a 4-digit code! The digits are hidden in files across the workshop. Find all four clues to crack the code.",
   audio: {
     intro: 'mission-02-intro',
     complete: 'mission-02-complete',
@@ -15,13 +15,13 @@ export const MISSION_SECRET_CODE = {
         'oil-can.txt': 'Just motor oil. Smells weird.',
         'workbench': {
           'plans.txt': 'Blueprint for a go-kart. The measurements are all in millimeters.',
-          '.sticky-note.txt': 'Bingo wrote: "The THIRD digit is how many legs a dog has."',
+          '.sticky-note.txt': 'A sticky note reads: "The THIRD digit is how many legs a dog has."',
         },
       },
       kitchen: {
         '.hint': 'Hint: Read the fridge note. Also check deep inside the pantry...',
-        'fridge-note.txt': 'Mum wrote: "The SECOND digit is how many Heeler kids there are."',
-        'recipe.txt': 'Chilli\'s famous dumplings recipe. Not a clue, just delicious.',
+        'fridge-note.txt': 'A note on the fridge says: "The SECOND digit is how many wings a bird has."',
+        'recipe.txt': 'Grandma\'s famous dumplings recipe. Not a clue, just delicious.',
         pantry: {
           'snacks.txt': 'Chips, biscuits, and a juice box. No clues here.',
           'back-shelf.txt': 'Behind the cereal box, you find a tiny note:\n"The FOURTH digit is how many eyes you have."',
@@ -31,7 +31,7 @@ export const MISSION_SECRET_CODE = {
         '.hint': 'Hint: The computer needs the code. Did you find all 4 digits? Think about the answers to each riddle!',
         'computer.txt': 'The screen says: ENTER 4-DIGIT CODE TO UNLOCK\nYou need to find all four digits first!',
         'bookshelf.txt': 'Books about rockets, dogs, and one called "Binary for Beginners". Interesting.',
-        'desk-drawer.txt': 'Pencils, erasers, and a photo of Bluey and Bingo at the beach.',
+        'desk-drawer.txt': 'Pencils, erasers, and a photo of Pip and a friend at the beach.',
       },
       'readme.txt': 'The workshop has three rooms: garage, kitchen, and study.\nThe code digits are hidden in files. Read everything!',
     },
@@ -68,6 +68,6 @@ export const MISSION_SECRET_CODE = {
       check: { type: 'file_read', path: 'computer.txt' },
     },
   ],
-  // Answer: 2-2-4-2 (bike wheels, Heeler kids, dog legs, eyes)
+  // Answer: 2-2-4-2 (bike wheels, bird wings, dog legs, eyes)
   // The kid has to piece it together from the clues!
 }

@@ -2,11 +2,19 @@
 
 Linux for kids. A browser-based terminal that teaches real Linux commands through missions, not lessons.
 
+**Live:** https://linux-jr.vercel.app
+
 ## What is this?
 
 A web app where kids open a URL and get a terminal. Green text on dark background. Blinking cursor. Missions that feel like hacking. The kid types real commands (`ls`, `cd`, `cat`) to solve puzzles, find hidden files, and decode messages.
 
-No real Linux underneath — it's a virtual filesystem in JavaScript with kid-friendly error messages and TTS narration. Works on iPad Safari in full-screen PWA mode. Age 7+.
+No real Linux underneath — it's a virtual filesystem in JavaScript with kid-friendly error messages and TTS narration. Works on iPad Safari in full-screen PWA mode (add to home screen). Age 7+.
+
+## Missions
+
+- **The Missing Blueprint** — find a hidden file in a workshop (intro to `pwd`, `ls`, `cd`, dotfiles)
+- **The Secret Code** — collect 4 digits across rooms to unlock a locked computer (`cat`, nested directories)
+- **The Maze** — follow breadcrumb notes through a nested maze to find Pip (deep navigation, `cd ..`)
 
 ## Why
 
