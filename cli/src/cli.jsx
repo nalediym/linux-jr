@@ -6,6 +6,8 @@ import { executeCommand } from '../../src/components/CommandParser.js'
 import { createMissionEngine } from '../../src/components/MissionEngine.js'
 import { ALL_MISSIONS } from '../../src/data/missions/index.js'
 
+const COMMANDS = ['pwd', 'ls', 'cd', 'cat', 'mkdir', 'man', 'help', 'clear', 'quit', 'exit', 'next']
+
 const argv = process.argv.slice(2)
 
 if (argv.includes('--version') || argv.includes('-v')) {
@@ -117,12 +119,12 @@ function MissionRunner({ mission, index, total, onComplete }) {
     setInput('')
     if (!trimmed) return
 
+    if (trimmed === 'quit' || trimmed === 'exit') {
+      process.exit(0)
+    }
     if (done && trimmed === 'next') {
       onComplete()
       return
-    }
-    if (done && trimmed === 'quit') {
-      process.exit(0)
     }
 
     const result = executeCommand(trimmed, fs)
@@ -174,8 +176,24 @@ function MissionRunner({ mission, index, total, onComplete }) {
     }
   }
 
-  useInput((input, key) => {
-    if (key.ctrl && input === 'c') process.exit(0)
+  function handleTab() {
+    const parts = input.split(/\s+/)
+    if (parts.length <= 1) {
+      const matches = COMMANDS.filter(c => c.startsWith(parts[0] || ''))
+      if (matches.length === 1) setInput(matches[0] + ' ')
+      return
+    }
+    const last = parts[parts.length - 1]
+    const matches = fs.complete(last)
+    if (matches.length === 1) {
+      parts[parts.length - 1] = matches[0]
+      setInput(parts.join(' '))
+    }
+  }
+
+  useInput((ch, key) => {
+    if (key.ctrl && ch === 'c') process.exit(0)
+    if (key.tab) handleTab()
   })
 
   return (

@@ -13,13 +13,13 @@
   "homepage": "https://linux-jr.vercel.app",
   "repository": {
     "type": "git",
-    "url": "https://github.com/nalediym/linux-jr.git",
+    "url": "git+https://github.com/nalediym/linux-jr.git",
     "directory": "cli"
   },
   "license": "MIT",
   "type": "module",
   "bin": {
-    "linuxjr": "./dist/cli.js"
+    "linuxjr": "dist/cli.js"
   },
   "files": [
     "dist"
