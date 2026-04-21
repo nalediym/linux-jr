@@ -116,13 +116,7 @@ export function executeCommand(input, fs) {
     case 'ls': {
       const result = fs.ls(arg)
       if (result.error) return { output: result.error, command, args, isError: true }
-      const entries = result.entries.map(name => {
-        // Check if directory or file by trying to ls it
-        const path = arg ? `${arg}/${name}` : name
-        const child = fs.ls(path)
-        const isDir = child.entries !== undefined
-        return isDir ? `${name}/` : name
-      })
+      const entries = result.entries.map(({ name, isDir }) => isDir ? `${name}/` : name)
       return { output: entries.join('  ') || '(empty)', command, args }
     }
 

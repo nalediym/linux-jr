@@ -50,7 +50,11 @@ export function createFileSystem(tree) {
       if (target === undefined) return { error: `No such directory: ${path || cwd}` }
       if (typeof target === 'string') return { error: `Not a directory: ${path}` }
       // Show all entries including dotfiles (design decision: no ls -a needed for age 7)
-      return { entries: Object.keys(target) }
+      const entries = Object.keys(target).map(name => ({
+        name,
+        isDir: typeof target[name] === 'object',
+      }))
+      return { entries }
     },
 
     cd(path) {
