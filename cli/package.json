@@ -1,6 +1,6 @@
 {
   "name": "linuxjr",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A browser-based Linux terminal for kids (age 7+), now in your real terminal. Learn Linux commands through missions, not lessons.",
   "keywords": [
     "linux",
