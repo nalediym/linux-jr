@@ -18,6 +18,7 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
+    "guard": "bash scripts/sloppy-guard.sh",
     "preview": "vite preview",
     "cli:build": "bun run --filter linuxjr build",
     "cli:test": "bun run --filter linuxjr test",

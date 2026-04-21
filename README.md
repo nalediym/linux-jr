@@ -131,6 +131,16 @@ Documented in `SOUL.md`. Quick highlights:
 - No villains, no scary, no time pressure
 - No jargon a 7-year-old wouldn't know (`shell`, `kernel`, `stdin`, `permission` — all deferred)
 
+## Contributing
+
+Every PR to `main` runs:
+- `bun run lint` — ESLint 9 flat config, zero-tolerance
+- `bun run build` — Vite production build
+- `bun run guard` — **the Sloppy Guard** (`scripts/sloppy-guard.sh`), a battery of checks that enforce SOUL.md rules: no debug statements left in, required files present, README integrity, banned words in user copy, orphan TODOs, and more
+- `gitleaks` secrets scan across the diff
+
+Run `bun run guard` locally before `git push` — same checks CI runs, same output format. The guard grows over time: every new class of sloppiness gets a check.
+
 ## Credits
 
 - **Game design + writing + code:** Naledi ([@nalediym](https://github.com/nalediym))

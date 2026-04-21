@@ -1,0 +1,26 @@
+# .gitleaks.toml
+# Scope tweaks for Linux Jr — the default rules catch API-key shapes well,
+# we mostly need allowlisting so mission content doesn't false-positive.
+
+title = "Linux Jr gitleaks config"
+
+[extend]
+# Start from the gitleaks default ruleset
+useDefault = true
+
+[allowlist]
+description = "Ignore mission story content, compiled KB, and node_modules"
+paths = [
+  '''node_modules''',
+  '''dist''',
+  '''kb/''',                              # compiled knowledge base — citations reference filenames with the word 'key' or 'secret'
+  '''src/data/missions''',                # mission content uses words like 'secret-room' and 'password'
+  '''public/audio''',                     # pre-generated MP3s
+  '''bun\.lock''',                        # lockfile hashes
+]
+
+# Common mission-copy words that read as secrets to overzealous rules
+regexes = [
+  '''secret[- _](room|code|note|note\.txt|key)''',          # secret-room, secret-key in mission text
+  '''FLAG\{[a-z0-9_]+\}''',                                  # our own FLAG format
+]
