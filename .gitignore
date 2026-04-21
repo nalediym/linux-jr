@@ -6,3 +6,10 @@ dist
 .DS_Store
 .omc
 *.log
+
+# Claude Code — commit agents + hooks, keep session/tooling state local
+.claude/worktrees/
+.claude/settings.local.json
+
+# Knowledge-base runtime state (the manifest thrashes on every compile)
+kb/.kb-manifest.json
