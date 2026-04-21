@@ -9,6 +9,23 @@ import { createTelemetry } from '../hooks/useTelemetry'
 
 const PROMPT_CHAR = '>'
 
+// One-time migration from the old `nawazi-*` key prefix to `linuxjr-*`.
+// Runs at import before any component code reads localStorage. Safe to delete
+// once the live deployment has rolled over (no one has old keys anymore).
+;(function migrateLegacyKeys() {
+  try {
+    for (const k of ['progress', 'disclaimer-accepted', 'telemetry']) {
+      const oldKey = `nawazi-${k}`
+      const newKey = `linuxjr-${k}`
+      const v = localStorage.getItem(oldKey)
+      if (v !== null && localStorage.getItem(newKey) === null) {
+        localStorage.setItem(newKey, v)
+      }
+      if (v !== null) localStorage.removeItem(oldKey)
+    }
+  } catch {}
+})()
+
 export default function Terminal() {
   const [lines, setLines] = useState([])
   const [input, setInput] = useState('')
@@ -32,7 +49,7 @@ export default function Terminal() {
 
     // Check for autosave
     try {
-      const saved = JSON.parse(localStorage.getItem('nawazi-progress') || '{}')
+      const saved = JSON.parse(localStorage.getItem('linuxjr-progress') || '{}')
       if (saved.currentMission?.id === mission.id && saved.currentMission?.tasksCompleted > 0) {
         missionRef.current.restoreProgress(saved.currentMission.tasksCompleted)
       }
@@ -120,10 +137,10 @@ export default function Terminal() {
 
         // Autosave
         try {
-          const saved = JSON.parse(localStorage.getItem('nawazi-progress') || '{}')
+          const saved = JSON.parse(localStorage.getItem('linuxjr-progress') || '{}')
           saved.currentMission = { id: progress.missionId, tasksCompleted: progress.current }
           saved.totalCommandsRun = (saved.totalCommandsRun || 0) + 1
-          localStorage.setItem('nawazi-progress', JSON.stringify(saved))
+          localStorage.setItem('linuxjr-progress', JSON.stringify(saved))
         } catch {}
 
         if (evaluation.complete) {
@@ -144,10 +161,10 @@ export default function Terminal() {
 
           // Save completion
           try {
-            const saved = JSON.parse(localStorage.getItem('nawazi-progress') || '{}')
+            const saved = JSON.parse(localStorage.getItem('linuxjr-progress') || '{}')
             saved.missionsCompleted = [...(saved.missionsCompleted || []), progress.missionId]
             saved.currentMission = null
-            localStorage.setItem('nawazi-progress', JSON.stringify(saved))
+            localStorage.setItem('linuxjr-progress', JSON.stringify(saved))
           } catch {}
         } else {
           const nextTask = mission.getCurrentTask()
@@ -219,7 +236,7 @@ export default function Terminal() {
   useEffect(() => {
     if (screen === 'disclaimer') {
       try {
-        if (localStorage.getItem('nawazi-disclaimer-accepted') === 'true') {
+        if (localStorage.getItem('linuxjr-disclaimer-accepted') === 'true') {
           setScreen('select')
         }
       } catch {}
@@ -227,7 +244,7 @@ export default function Terminal() {
   }, [screen])
 
   function handleAccept() {
-    try { localStorage.setItem('nawazi-disclaimer-accepted', 'true') } catch {}
+    try { localStorage.setItem('linuxjr-disclaimer-accepted', 'true') } catch {}
     unlockAudio()
     setScreen('select')
   }
@@ -250,7 +267,7 @@ export default function Terminal() {
           fontFamily: 'var(--font-mono)',
           textAlign: 'center',
         }}>
-          Nawazi Terminal
+          Linux Jr
         </h1>
         <div style={{
           color: 'var(--text)',
@@ -318,7 +335,7 @@ export default function Terminal() {
           textAlign: 'center',
           marginBottom: '0.5rem',
         }}>
-          Nawazi Terminal
+          Linux Jr
         </h1>
         <p style={{
           color: 'var(--terminal-dim)',
