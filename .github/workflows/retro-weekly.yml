@@ -1,0 +1,40 @@
+name: /retro — weekly
+
+# Phase 5. Runs the /retro skill every Sunday 9am ET.
+# Generates a weekly summary of commits, PRs, prod incidents, KB
+# drift, SLO status. Posts to the configured destination (Gmail MCP
+# via a webhook, GitHub Discussion, etc.).
+#
+# STATUS: STUB — activate when /retro has a CI runner.
+
+on:
+  schedule:
+    # 9am America/New_York = 14:00 UTC (winter) / 13:00 UTC (summer)
+    # Using 14:00 UTC accepts a 1-hour drift across DST.
+    - cron: '0 14 * * 0'
+  workflow_dispatch:
+
+jobs:
+  retro:
+    name: weekly retro
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    if: ${{ vars.RETRO_SKILL_ENABLED == 'true' }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run /retro
+        run: |
+          # gstack retro --since "7 days ago" \
+          #   --output docs/retros/$(date +%Y-%m-%d).md
+          echo "/retro skill stub — activate when skill has CI runner"
+
+      - name: Email summary via Gmail MCP
+        run: |
+          # Needs a Gmail MCP-compatible mail sender wired up.
+          # For now, /retro output just sits in the workflow logs.
+          echo "Email integration pending"
+        env:
+          GMAIL_WEBHOOK_URL: ${{ secrets.GMAIL_WEBHOOK_URL }}
