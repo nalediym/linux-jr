@@ -176,7 +176,9 @@ Usage: clear`,
 /**
  * Tokenize an input line into tokens. Respects double-quoted strings,
  * single-quoted strings, and backslash escapes. Whitespace splits tokens.
- * Returns array of strings; quoted strings keep their internal whitespace.
+ * Returns { tokens } on success, or { error } on malformed input
+ * (unterminated quote, dangling backslash) — both surface as kid-friendly
+ * messages rather than silently mis-parsing into a "file not found."
  */
 export function tokenize(input) {
   const tokens = []
@@ -215,8 +217,14 @@ export function tokenize(input) {
     }
     current += ch
   }
+  if (escape) {
+    return { error: `Hmm, that command ends with a backslash but nothing after it. Try removing the trailing \\.` }
+  }
+  if (quote) {
+    return { error: `Hmm, you opened a ${quote} quote but never closed it. Add a matching ${quote} at the end.` }
+  }
   if (current.length > 0) tokens.push(current)
-  return tokens
+  return { tokens }
 }
 
 /**
@@ -283,7 +291,11 @@ export function executeCommand(input, fs) {
   const trimmed = input.trim()
   if (!trimmed) return null
 
-  const tokens = tokenize(trimmed)
+  const tokenized = tokenize(trimmed)
+  if (tokenized.error) {
+    return { output: tokenized.error, command: '', args: [], flags: {}, isError: true }
+  }
+  const tokens = tokenized.tokens
   if (tokens.length === 0) return null
   const command = tokens[0].toLowerCase()
   const rest = tokens.slice(1)

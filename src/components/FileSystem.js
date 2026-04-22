@@ -140,22 +140,74 @@ export function createFileSystem(tree, options = {}) {
      * find — recursively walk PATH, return entries matching predicates.
      * predicates: { name?: glob, size?: bytes, type?: 'f'|'d' }
      * Glob supports * and ? only. Patterns match the basename, not the full path.
+     *
+     * Caps: pattern length 64, total results 10000. The pattern matcher is
+     * a hand-rolled non-backtracking walker (NOT regex with `.*`) — converting
+     * `*foo*bar*` to `^.*foo.*bar.*$` is catastrophically slow on adversarial
+     * inputs (ReDoS).
      */
     find(path, predicates = {}) {
       const startParts = resolvePath(path || cwd)
       const start = getNode(path || cwd)
       if (start === undefined) return { error: `find: ${path}: No such file or directory` }
+      if (predicates.name != null && predicates.name.length > 64) {
+        return { error: `find: pattern too long (max 64 characters)` }
+      }
       const results = []
+      const RESULT_CAP = 10000
+
+      // Tokenize the glob into literal segments separated by `*`. Each segment
+      // is matched with a left-to-right greedy scan — no backtracking.
+      let segments = null
+      if (predicates.name != null) {
+        segments = predicates.name.split('*').map(seg => {
+          // `?` inside a segment matches any single char.
+          // Returns a function that tests whether the segment matches at offset i in name.
+          return { len: seg.length, chars: [...seg] }
+        })
+      }
       const matchesName = (name) => {
-        if (predicates.name == null) return true
-        const re = new RegExp(
-          '^' + predicates.name.split('').map(c => {
-            if (c === '*') return '.*'
-            if (c === '?') return '.'
-            return c.replace(/[.+^${}()|[\]\\]/g, '\\$&')
-          }).join('') + '$'
-        )
-        return re.test(name)
+        if (segments == null) return true
+        const segMatch = (segIdx, offset) => {
+          const seg = segments[segIdx]
+          if (offset + seg.len > name.length) return -1
+          for (let i = 0; i < seg.len; i++) {
+            const c = seg.chars[i]
+            if (c !== '?' && c !== name[offset + i]) return -1
+          }
+          return offset + seg.len
+        }
+        // First segment must match at start (unless empty, meaning leading `*`).
+        let pos = 0
+        if (segments[0].len > 0) {
+          const end = segMatch(0, 0)
+          if (end < 0) return false
+          pos = end
+        }
+        // Middle segments: scan forward, find next occurrence (linear).
+        for (let s = 1; s < segments.length - 1; s++) {
+          const seg = segments[s]
+          if (seg.len === 0) continue
+          let found = -1
+          for (let i = pos; i + seg.len <= name.length; i++) {
+            const end = segMatch(s, i)
+            if (end >= 0) { found = end; break }
+          }
+          if (found < 0) return false
+          pos = found
+        }
+        // Last segment must match at end (unless empty, meaning trailing `*`).
+        if (segments.length > 1) {
+          const last = segments[segments.length - 1]
+          if (last.len > 0) {
+            const start = name.length - last.len
+            if (start < pos) return false
+            return segMatch(segments.length - 1, start) === name.length
+          }
+          return true
+        }
+        // Single segment with no `*` — must match the entire name.
+        return pos === name.length
       }
       const matchesSize = (size) => predicates.size == null || predicates.size === size
       const matchesType = (isDir) => {
@@ -165,20 +217,31 @@ export function createFileSystem(tree, options = {}) {
         return true
       }
 
+      // Hoisted: avoid allocating a TextEncoder per node.
+      const encoder = predicates.size != null ? new TextEncoder() : null
+      const sizeOf = (isDir, content) => {
+        if (isDir) return 0
+        if (encoder == null) return 0 // unused when size predicate absent
+        return encoder.encode(content).length
+      }
+
       // Optionally include the start path itself as the first entry (real `find` does this).
       const startName = startParts.length === 0 ? '.' : startParts[startParts.length - 1]
       const startIsDir = typeof start === 'object'
-      const startSize = startIsDir ? 0 : new TextEncoder().encode(start).length
+      const startSize = sizeOf(startIsDir, start)
       if (matchesName(startName) && matchesSize(startSize) && matchesType(startIsDir)) {
         results.push(joinPath(startParts) || '/')
       }
 
+      let truncated = false
       walk(startParts, ({ name, parts, isDir, content }) => {
-        const size = isDir ? 0 : new TextEncoder().encode(content).length
+        if (results.length >= RESULT_CAP) { truncated = true; return }
+        const size = sizeOf(isDir, content)
         if (matchesName(name) && matchesSize(size) && matchesType(isDir)) {
           results.push(joinPath(parts))
         }
       })
+      if (truncated) results.push(`(truncated at ${RESULT_CAP} results)`)
       return { results }
     },
   }

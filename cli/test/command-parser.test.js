@@ -148,16 +148,54 @@ describe('executeCommand: unknown command', () => {
 
 describe('tokenize: quoting and escapes', () => {
   test('plain whitespace split', () => {
-    expect(tokenize('cat readme')).toEqual(['cat', 'readme'])
+    expect(tokenize('cat readme').tokens).toEqual(['cat', 'readme'])
   })
   test('double-quoted argument with spaces', () => {
-    expect(tokenize('cat "spaces in name"')).toEqual(['cat', 'spaces in name'])
+    expect(tokenize('cat "spaces in name"').tokens).toEqual(['cat', 'spaces in name'])
   })
   test('single-quoted argument with spaces', () => {
-    expect(tokenize("cat 'spaces in name'")).toEqual(['cat', 'spaces in name'])
+    expect(tokenize("cat 'spaces in name'").tokens).toEqual(['cat', 'spaces in name'])
   })
   test('backslash escapes whitespace', () => {
-    expect(tokenize('cat spaces\\ in\\ name')).toEqual(['cat', 'spaces in name'])
+    expect(tokenize('cat spaces\\ in\\ name').tokens).toEqual(['cat', 'spaces in name'])
+  })
+  test('unterminated double quote returns kid-friendly error', () => {
+    const r = tokenize('cat "unclosed')
+    expect(r.tokens).toBeUndefined()
+    expect(r.error).toMatch(/never closed/i)
+  })
+  test('unterminated single quote returns error', () => {
+    const r = tokenize("cat 'unclosed")
+    expect(r.error).toMatch(/never closed/i)
+  })
+  test('trailing backslash returns error', () => {
+    const r = tokenize('cat foo\\')
+    expect(r.error).toMatch(/backslash/i)
+  })
+  test('executeCommand surfaces tokenize error as kid-friendly output', () => {
+    const r = executeCommand('cat "unclosed', makeFs())
+    expect(r.isError).toBe(true)
+    expect(r.output).toMatch(/never closed/i)
+  })
+})
+
+describe('FileSystem: find pattern safety', () => {
+  test('rejects very long patterns instead of risking ReDoS', () => {
+    const fs = createFileSystem({ a: 'hi' })
+    const r = executeCommand('find . -name "' + '*a'.repeat(40) + '"', fs)
+    expect(r.isError).toBe(true)
+    expect(r.output).toMatch(/too long/i)
+  })
+  test('catastrophic-backtrack-style input completes quickly', () => {
+    // Without the non-backtracking matcher, this would freeze for seconds.
+    const tree = {}
+    for (let i = 0; i < 50; i++) tree['file' + i] = 'a'.repeat(30)
+    const fs = createFileSystem(tree)
+    const start = Date.now()
+    const r = executeCommand('find . -name "*a*a*a*a*a*ab"', fs)
+    const elapsed = Date.now() - start
+    expect(elapsed).toBeLessThan(200) // generous; real bug took ~12 seconds
+    expect(r.output).toBe('(no matches)')
   })
 })
 

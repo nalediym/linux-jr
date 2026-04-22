@@ -841,7 +841,10 @@ export default function Terminal() {
                 text: feedbackText.trim() || null,
                 ts: Date.now(),
               })
-              localStorage.setItem('linuxjr-feedback', JSON.stringify(all))
+              // Cap at last 200 entries — localStorage is ~5MB and a kid grinding
+              // the same arcade game can otherwise fill it over time.
+              const capped = all.length > 200 ? all.slice(-200) : all
+              localStorage.setItem('linuxjr-feedback', JSON.stringify(capped))
             } catch {}
             setFeedbackForGameId(null)
             setScreen(originScreenRef.current || 'arcade-grid')
@@ -853,8 +856,10 @@ export default function Terminal() {
         />
       )}
 
-      {/* Custom input bar — iPad-friendly, not raw xterm.js textarea */}
-      <form onSubmit={handleSubmit} style={{
+      {/* Custom input bar — iPad-friendly, not raw xterm.js textarea.
+          Hidden while the feedback panel is up so the kid can't keep typing
+          commands against an orphaned mission FS after capture. */}
+      {!feedbackForGameId && <form onSubmit={handleSubmit} style={{
         display: 'flex',
         alignItems: 'center',
         gap: '0.5rem',
@@ -907,7 +912,7 @@ export default function Terminal() {
         >
           Run
         </button>
-      </form>
+      </form>}
     </div>
   )
 }
