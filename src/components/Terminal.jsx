@@ -87,7 +87,7 @@ function ParentHint({ onContinue }) {
     }}>
       <div style={{
         fontSize: '0.85rem',
-        color: '#9ca3af', // brighter than --terminal-dim for WCAG AA contrast on --bg
+        color: 'var(--terminal-dim)',
         textTransform: 'uppercase',
         letterSpacing: '0.1em',
       }}>
@@ -112,13 +112,13 @@ function ParentHint({ onContinue }) {
         Linux Jr teaches real Linux commands. The first mission is reading a file with <code style={{ color: 'var(--terminal-green)' }}>cat readme</code>. After that they can play alone.
       </p>
       <p style={{
-        color: '#9ca3af', // brighter than --terminal-dim for WCAG AA contrast on --bg
+        color: 'var(--terminal-dim)',
         fontSize: '0.9rem',
         lineHeight: 1.5,
         textAlign: 'center',
         margin: 0,
       }}>
-        Nothing leaves the device. No accounts, no analytics, no tracking. <a href="/PRIVACY.md" style={{ color: '#9ca3af' }}>Privacy stance →</a>
+        Nothing leaves the device. No accounts, no analytics, no tracking. <a href="/PRIVACY.md" style={{ color: 'var(--terminal-dim)' }}>Privacy stance →</a>
       </p>
       <button
         onClick={onContinue}
@@ -882,7 +882,9 @@ export default function Terminal() {
                       : '2px solid var(--terminal-yellow)',
                   borderRadius: '12px',
                   cursor: locked ? 'default' : 'pointer',
-                  opacity: locked ? 0.4 : 1,
+                  // Was 0.4 — pushed text below WCAG AA. 0.75 keeps the
+                  // "this is locked" cue while staying above contrast minimums.
+                  opacity: locked ? 0.75 : 1,
                   textAlign: 'left',
                   transition: 'all 0.15s',
                   width: '100%',
@@ -898,7 +900,7 @@ export default function Terminal() {
                   color: done
                     ? 'var(--terminal-green)'
                     : locked
-                      ? '#555'
+                      ? 'var(--terminal-dim)'
                       : 'var(--terminal-yellow)',
                 }}>
                   {done ? '✓' : locked ? '🔒' : `${i + 1}`}
@@ -907,7 +909,7 @@ export default function Terminal() {
                   <div style={{
                     fontSize: '1.1rem',
                     fontWeight: 600,
-                    color: done ? 'var(--terminal-green)' : locked ? '#555' : 'var(--text)',
+                    color: done ? 'var(--terminal-green)' : locked ? 'var(--terminal-dim)' : 'var(--text)',
                     fontFamily: 'var(--font-ui)',
                   }}>
                     {mission.title}
