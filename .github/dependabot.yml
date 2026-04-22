@@ -1,0 +1,64 @@
+# Dependabot — automated dependency updates
+#
+# Phase 1 of the DevOps plan. Supply-chain defense starts with
+# keeping deps current. Pair with Socket.dev GitHub App (see
+# docs/setup/socket.md) for malicious-package detection.
+#
+# Security updates are always enabled for public repos by default
+# (GitHub setting). This file configures the VERSION updates.
+
+version: 2
+updates:
+  # Web app dependencies
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "America/New_York"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "nalediym"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+    groups:
+      # Batch minor + patch updates to reduce PR volume
+      non-breaking:
+        update-types:
+          - "minor"
+          - "patch"
+    # Keep major version updates as separate PRs so they get extra scrutiny
+    ignore:
+      # Vite major bumps often break plugin compat — handle manually
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+      # Same for React majors
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+
+  # CLI workspace
+  - package-ecosystem: "npm"
+    directory: "/cli"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "chore(cli-deps)"
+      include: "scope"
+    groups:
+      non-breaking:
+        update-types: ["minor", "patch"]
+
+  # GitHub Actions versions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    open-pull-requests-limit: 2
+    commit-message:
+      prefix: "chore(ci)"
