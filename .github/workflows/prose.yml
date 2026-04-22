@@ -20,9 +20,11 @@ jobs:
       - name: Vale
         uses: errata-ai/vale-action@reviewdog
         with:
-          # Fail the job on error-level findings (SOUL.md banned words)
+          # Fail the job on error-level findings only (SOUL.md banned words).
+          # Without `level: error`, reviewdog reports WARNING/INFO findings too
+          # and exits non-zero on any report, so prose preferences fail CI.
           fail_on_error: true
-          # Only scan changed files
+          level: error
           files: all
           version: 3.9.0
         env:
