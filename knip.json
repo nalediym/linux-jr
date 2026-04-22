@@ -1,0 +1,19 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/main.jsx!"
+  ],
+  "project": [
+    "src/**/*.{js,jsx}",
+    "scripts/**/*.js"
+  ],
+  "ignore": [
+    "cli/**",
+    "scripts/generate-voice.js"
+  ],
+  "ignoreDependencies": [
+    "@xterm/xterm",
+    "@sentry/react"
+  ],
+  "ignoreExportsUsedInFile": true
+}

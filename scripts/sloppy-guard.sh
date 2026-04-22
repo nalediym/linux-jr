@@ -130,6 +130,21 @@ else
   pass "no dev-only test markers"
 fi
 
+header "SOFT: Dead code (via Knip)"
+# Knip finds unused files, exports, deps.
+# SOFT because these are usually API surface decisions, not bugs.
+if [ -f knip.json ] && command -v bun >/dev/null 2>&1; then
+  KNIP_OUT=$(bun run knip --no-config-hints 2>&1 || true)
+  if printf "%s" "$KNIP_OUT" | grep -q "Unused"; then
+    warn "Knip flagged unused exports or files (run \`bun run knip\` for detail):"
+    printf "%s" "$KNIP_OUT" | grep -E "Unused (files|exports|dependencies)" | head -3 | sed 's/^/      /'
+  else
+    pass "no unused exports or dead files (Knip)"
+  fi
+else
+  info "Knip not configured — skipping dead-code check"
+fi
+
 # ─── INSIGHT checks (informational) ────────────────────────────────────
 
 header "INSIGHT: Bundle size"
