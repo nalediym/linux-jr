@@ -11,5 +11,7 @@ dist
 .claude/worktrees/
 .claude/settings.local.json
 
-# Knowledge-base runtime state (the manifest thrashes on every compile)
-kb/.kb-manifest.json
+# Knowledge base — entirely local. Raw sources are user-managed, the wiki is
+# LLM-compiled and noisy on diff, and the manifest thrashes on every compile.
+# Nothing under kb/ should ever land in git.
+kb/

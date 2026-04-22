@@ -4,10 +4,142 @@ import { executeCommand } from './CommandParser'
 import { createMissionEngine } from './MissionEngine'
 import { playVoice, unlockAudio, VOICE_LINES } from '../hooks/useVoice'
 import { ALL_MISSIONS, getCompletedMissionIds } from '../data/missions/index'
+import { ALL_ARCADE_GAMES, arcadeToMission, getCompletedArcadeIds } from '../data/arcade/index'
 import { playSound } from '../hooks/useTerminalSounds'
 import { createTelemetry } from '../hooks/useTelemetry'
 
 const PROMPT_CHAR = '>'
+
+function FeedbackPanel({ gameId, rating, text, onRating, onText, onSubmit, onSkip }) {
+  const ratings = [
+    { value: 1, emoji: '😐', label: 'meh' },
+    { value: 2, emoji: '😊', label: 'fun' },
+    { value: 3, emoji: '🤩', label: 'awesome' },
+  ]
+  return (
+    <div
+      style={{
+        borderTop: '2px solid var(--terminal-green)',
+        background: '#0e120e',
+        padding: '0.75rem 1rem',
+        flexShrink: 0,
+        fontFamily: 'var(--font-ui)',
+      }}
+      data-testid="arcade-feedback"
+      data-game-id={gameId}
+    >
+      <div style={{
+        color: 'var(--terminal-green)',
+        fontSize: '0.95rem',
+        fontWeight: 600,
+        marginBottom: '0.5rem',
+      }}>
+        Flag captured! How was it?
+      </div>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: rating ? '0.5rem' : 0 }}>
+        {ratings.map(r => (
+          <button
+            key={r.value}
+            type="button"
+            onClick={() => onRating(r.value)}
+            aria-label={`rate ${r.label}`}
+            style={{
+              flex: 1,
+              minHeight: '48px',
+              fontSize: '1.6rem',
+              background: rating === r.value ? 'var(--terminal-green)' : '#1a1a1a',
+              color: rating === r.value ? 'var(--bg)' : 'inherit',
+              border: rating === r.value ? '2px solid var(--terminal-green)' : '2px solid #333',
+              borderRadius: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            {r.emoji}
+          </button>
+        ))}
+      </div>
+      {rating && (
+        <>
+          <textarea
+            value={text}
+            onChange={e => onText(e.target.value)}
+            placeholder="tell us more (optional)"
+            rows={2}
+            maxLength={500}
+            style={{
+              width: '100%',
+              boxSizing: 'border-box',
+              background: '#1a1a1a',
+              color: 'var(--text)',
+              border: '1px solid #333',
+              borderRadius: '8px',
+              padding: '0.5rem',
+              fontFamily: 'var(--font-ui)',
+              fontSize: '0.95rem',
+              resize: 'vertical',
+              marginBottom: '0.5rem',
+            }}
+          />
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={onSubmit}
+              style={{
+                flex: 1,
+                minHeight: '44px',
+                background: 'var(--terminal-green)',
+                color: 'var(--bg)',
+                border: 'none',
+                borderRadius: '8px',
+                fontFamily: 'var(--font-ui)',
+                fontWeight: 600,
+                fontSize: '1rem',
+                cursor: 'pointer',
+              }}
+            >
+              Send & back to Arcade
+            </button>
+            <button
+              type="button"
+              onClick={onSkip}
+              style={{
+                minHeight: '44px',
+                background: 'transparent',
+                color: 'var(--terminal-dim)',
+                border: '1px solid var(--terminal-dim)',
+                borderRadius: '8px',
+                padding: '0 1rem',
+                fontFamily: 'var(--font-ui)',
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+              }}
+            >
+              Skip
+            </button>
+          </div>
+        </>
+      )}
+      {!rating && (
+        <button
+          type="button"
+          onClick={onSkip}
+          style={{
+            marginTop: '0.5rem',
+            background: 'transparent',
+            color: 'var(--terminal-dim)',
+            border: 'none',
+            fontSize: '0.85rem',
+            fontFamily: 'var(--font-ui)',
+            cursor: 'pointer',
+            padding: '0.25rem 0',
+          }}
+        >
+          skip — back to Arcade
+        </button>
+      )}
+    </div>
+  )
+}
 
 // One-time migration from the old `nawazi-*` key prefix to `linuxjr-*`.
 // Runs at import before any component code reads localStorage. Safe to delete
@@ -32,25 +164,36 @@ export default function Terminal() {
   const [screen, setScreen] = useState(() => {
     // Auto-skip disclaimer if already accepted (read once at mount).
     try {
-      return localStorage.getItem('linuxjr-disclaimer-accepted') === 'true' ? 'select' : 'disclaimer'
+      return localStorage.getItem('linuxjr-disclaimer-accepted') === 'true' ? 'home' : 'disclaimer'
     } catch {
       return 'disclaimer'
     }
-  }) // disclaimer | select | playing
+  }) // disclaimer | home | campaign-select | arcade-grid | playing
   const outputRef = useRef(null)
   const inputRef = useRef(null)
   const fsRef = useRef(null)
   const missionRef = useRef(null)
   const activeMissionRef = useRef(null)
   const telemetryRef = useRef(null)
+  // Tracks which screen the player came from so mission-complete returns there.
+  const originScreenRef = useRef('campaign-select')
+  // Arcade-only post-capture feedback. Null = no panel; string = id of game
+  // whose flag was just captured. While set, the auto-return timer is paused
+  // until the kid taps a rating or skips.
+  const [feedbackForGameId, setFeedbackForGameId] = useState(null)
+  const [feedbackRating, setFeedbackRating] = useState(null) // 1 | 2 | 3 | null
+  const [feedbackText, setFeedbackText] = useState('')
 
   function addLine(text, type = 'output') {
     setLines(prev => [...prev, { text, type, ts: Date.now() }])
   }
 
-  function startMission(mission) {
+  function startMission(mission, origin = 'campaign-select') {
     activeMissionRef.current = mission
-    fsRef.current = createFileSystem(structuredClone(mission.filesystem))
+    originScreenRef.current = origin
+    fsRef.current = createFileSystem(structuredClone(mission.filesystem), {
+      hidesDotfiles: !!mission.hidesDotfiles,
+    })
     missionRef.current = createMissionEngine(mission)
     telemetryRef.current = createTelemetry(mission.id)
 
@@ -164,12 +307,21 @@ export default function Terminal() {
           }
           const am = activeMissionRef.current
           playVoice(am?.audio?.complete || VOICE_LINES.missionComplete.key, VOICE_LINES.missionComplete.text)
-          setTimeout(() => setScreen('select'), 5000)
+          const returnTo = originScreenRef.current || 'campaign-select'
+          if (returnTo === 'arcade-grid') {
+            // Arcade: open the feedback panel; the kid dismisses it manually.
+            setFeedbackRating(null)
+            setFeedbackText('')
+            setFeedbackForGameId(progress.missionId)
+          } else {
+            setTimeout(() => setScreen(returnTo), 5000)
+          }
 
-          // Save completion
+          // Save completion — arcade games go in their own array
           try {
             const saved = JSON.parse(localStorage.getItem('linuxjr-progress') || '{}')
-            saved.missionsCompleted = [...(saved.missionsCompleted || []), progress.missionId]
+            const completionKey = returnTo === 'arcade-grid' ? 'arcadeCompleted' : 'missionsCompleted'
+            saved[completionKey] = [...(saved[completionKey] || []), progress.missionId]
             saved.currentMission = null
             localStorage.setItem('linuxjr-progress', JSON.stringify(saved))
           } catch {}
@@ -201,7 +353,7 @@ export default function Terminal() {
   }, [])
 
   // Tab completion
-  const COMMANDS = ['pwd', 'ls', 'cd', 'cat', 'mkdir', 'man', 'help', 'clear']
+  const COMMANDS = ['pwd', 'ls', 'cd', 'cat', 'file', 'find', 'grep', 'base64', 'strings', 'mkdir', 'man', 'help', 'clear']
 
   function handleKeyDown(e) {
     if (e.key !== 'Tab') return
@@ -242,7 +394,7 @@ export default function Terminal() {
   function handleAccept() {
     try { localStorage.setItem('linuxjr-disclaimer-accepted', 'true') } catch {}
     unlockAudio()
-    setScreen('select')
+    setScreen('home')
   }
 
   if (screen === 'disclaimer') {
@@ -298,7 +450,215 @@ export default function Terminal() {
     )
   }
 
-  if (screen === 'select') {
+  if (screen === 'home') {
+    return (
+      <div style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '2rem',
+        padding: '2rem',
+        fontFamily: 'var(--font-ui)',
+      }}>
+        <h1 style={{
+          fontSize: '2.4rem',
+          color: 'var(--terminal-green)',
+          fontFamily: 'var(--font-mono)',
+          textAlign: 'center',
+          margin: 0,
+        }}>
+          Linux Jr
+        </h1>
+        <p style={{
+          color: 'var(--terminal-dim)',
+          fontSize: '1rem',
+          textAlign: 'center',
+          margin: 0,
+        }}>
+          Pick how you want to hack.
+        </p>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+          width: '100%',
+          maxWidth: '320px',
+        }}>
+          <button
+            onClick={() => setScreen('campaign-select')}
+            style={{
+              padding: '1.5rem 1.25rem',
+              fontSize: '1.3rem',
+              fontFamily: 'var(--font-ui)',
+              fontWeight: 700,
+              background: '#1a1a1a',
+              color: 'var(--terminal-green)',
+              border: '2px solid var(--terminal-green)',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              minHeight: '64px',
+              textAlign: 'left',
+            }}
+          >
+            CAMPAIGN
+            <div style={{
+              fontSize: '0.85rem',
+              color: 'var(--terminal-dim)',
+              fontWeight: 400,
+              marginTop: '0.25rem',
+            }}>
+              Story missions, in order.
+            </div>
+          </button>
+          <button
+            onClick={() => setScreen('arcade-grid')}
+            style={{
+              padding: '1.5rem 1.25rem',
+              fontSize: '1.3rem',
+              fontFamily: 'var(--font-ui)',
+              fontWeight: 700,
+              background: '#1a1a1a',
+              color: 'var(--terminal-yellow)',
+              border: '2px solid var(--terminal-yellow)',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              minHeight: '64px',
+              textAlign: 'left',
+            }}
+          >
+            ARCADE
+            <div style={{
+              fontSize: '0.85rem',
+              color: 'var(--terminal-dim)',
+              fontWeight: 400,
+              marginTop: '0.25rem',
+            }}>
+              CTF puzzles. Play in any order.
+            </div>
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (screen === 'arcade-grid') {
+    const completedIds = getCompletedArcadeIds()
+    return (
+      <div style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '2rem',
+        fontFamily: 'var(--font-ui)',
+        overflowY: 'auto',
+      }}>
+        <h1 style={{
+          fontSize: '2rem',
+          color: 'var(--terminal-yellow)',
+          fontFamily: 'var(--font-mono)',
+          textAlign: 'center',
+          marginBottom: '0.5rem',
+        }}>
+          Arcade
+        </h1>
+        <p style={{
+          color: 'var(--terminal-dim)',
+          fontSize: '1rem',
+          textAlign: 'center',
+          marginBottom: '1.5rem',
+        }}>
+          {completedIds.length === 0
+            ? 'Capture the flag.'
+            : `${completedIds.length} of ${ALL_ARCADE_GAMES.length} flags captured`}
+        </p>
+        <button
+          onClick={() => setScreen('home')}
+          style={{
+            background: 'transparent',
+            color: 'var(--terminal-dim)',
+            border: '1px solid var(--terminal-dim)',
+            borderRadius: '8px',
+            padding: '0.5rem 1rem',
+            fontSize: '0.9rem',
+            fontFamily: 'var(--font-ui)',
+            cursor: 'pointer',
+            marginBottom: '1.5rem',
+            minHeight: '40px',
+          }}
+        >
+          ← Back
+        </button>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+          width: '100%',
+          maxWidth: '400px',
+        }}>
+          {ALL_ARCADE_GAMES.map(game => {
+            const done = completedIds.includes(game.id)
+            return (
+              <button
+                key={game.id}
+                onClick={() => startMission(arcadeToMission(game), 'arcade-grid')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  padding: '1rem 1.25rem',
+                  background: '#1a1a1a',
+                  border: done
+                    ? '2px solid var(--terminal-green)'
+                    : '2px solid var(--terminal-yellow)',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.15s',
+                  width: '100%',
+                  minHeight: '64px',
+                }}
+                aria-label={`Play ${game.title}`}
+              >
+                <span style={{
+                  fontSize: '1.5rem',
+                  width: '2.5rem',
+                  textAlign: 'center',
+                  flexShrink: 0,
+                  fontFamily: 'var(--font-mono)',
+                  color: done ? 'var(--terminal-green)' : 'var(--terminal-yellow)',
+                }}>
+                  {done ? '✓' : '⚑'}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '1.1rem',
+                    fontWeight: 600,
+                    color: done ? 'var(--terminal-green)' : 'var(--text)',
+                    fontFamily: 'var(--font-ui)',
+                  }}>
+                    {game.title}
+                  </div>
+                  <div style={{
+                    fontSize: '0.85rem',
+                    color: 'var(--terminal-dim)',
+                    marginTop: '0.25rem',
+                    lineHeight: 1.4,
+                  }}>
+                    {game.summary}
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  if (screen === 'campaign-select') {
     const completedIds = getCompletedMissionIds()
     return (
       <div style={{
@@ -323,12 +683,29 @@ export default function Terminal() {
           color: 'var(--terminal-dim)',
           fontSize: '1rem',
           textAlign: 'center',
-          marginBottom: '2rem',
+          marginBottom: '1rem',
         }}>
           {completedIds.length === 0
             ? 'Choose your first mission, hacker.'
             : `${completedIds.length} of ${ALL_MISSIONS.length} missions complete`}
         </p>
+        <button
+          onClick={() => setScreen('home')}
+          style={{
+            background: 'transparent',
+            color: 'var(--terminal-dim)',
+            border: '1px solid var(--terminal-dim)',
+            borderRadius: '8px',
+            padding: '0.5rem 1rem',
+            fontSize: '0.9rem',
+            fontFamily: 'var(--font-ui)',
+            cursor: 'pointer',
+            marginBottom: '1.5rem',
+            minHeight: '40px',
+          }}
+        >
+          ← Back
+        </button>
         <div style={{
           display: 'flex',
           flexDirection: 'column',
@@ -344,7 +721,7 @@ export default function Terminal() {
             return (
               <button
                 key={mission.id}
-                onClick={() => !locked && startMission(mission)}
+                onClick={() => !locked && startMission(mission, 'campaign-select')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -448,8 +825,41 @@ export default function Terminal() {
         ))}
       </div>
 
-      {/* Custom input bar — iPad-friendly, not raw xterm.js textarea */}
-      <form onSubmit={handleSubmit} style={{
+      {feedbackForGameId && (
+        <FeedbackPanel
+          gameId={feedbackForGameId}
+          rating={feedbackRating}
+          text={feedbackText}
+          onRating={setFeedbackRating}
+          onText={setFeedbackText}
+          onSubmit={() => {
+            try {
+              const all = JSON.parse(localStorage.getItem('linuxjr-feedback') || '[]')
+              all.push({
+                gameId: feedbackForGameId,
+                rating: feedbackRating,
+                text: feedbackText.trim() || null,
+                ts: Date.now(),
+              })
+              // Cap at last 200 entries — localStorage is ~5MB and a kid grinding
+              // the same arcade game can otherwise fill it over time.
+              const capped = all.length > 200 ? all.slice(-200) : all
+              localStorage.setItem('linuxjr-feedback', JSON.stringify(capped))
+            } catch {}
+            setFeedbackForGameId(null)
+            setScreen(originScreenRef.current || 'arcade-grid')
+          }}
+          onSkip={() => {
+            setFeedbackForGameId(null)
+            setScreen(originScreenRef.current || 'arcade-grid')
+          }}
+        />
+      )}
+
+      {/* Custom input bar — iPad-friendly, not raw xterm.js textarea.
+          Hidden while the feedback panel is up so the kid can't keep typing
+          commands against an orphaned mission FS after capture. */}
+      {!feedbackForGameId && <form onSubmit={handleSubmit} style={{
         display: 'flex',
         alignItems: 'center',
         gap: '0.5rem',
@@ -502,7 +912,7 @@ export default function Terminal() {
         >
           Run
         </button>
-      </form>
+      </form>}
     </div>
   )
 }

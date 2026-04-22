@@ -20,11 +20,24 @@ jobs:
       - name: Vale
         uses: errata-ai/vale-action@reviewdog
         with:
-          # Fail the job on error-level findings (SOUL.md banned words)
-          fail_on_error: true
-          # Only scan changed files
+          # Vale itself, run directly. We tried vale-action with reviewdog but
+          # its fail_on_error semantics treat WARNING findings as failures
+          # regardless of `level` config — so prose preferences blocked CI.
+          # Skip reviewdog and run vale's own check instead; fail only on
+          # ERROR-level findings (SOUL.md banned words via LinuxJr.BannedWords).
+          fail_on_error: false
           files: all
           version: 3.9.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Independently fail the job if vale reports any error-level findings.
+      # Vale's `--minAlertLevel=error` lists only the rules we treat as gates.
+      - name: Vale gate (error-level only)
+        run: |
+          curl -sL https://github.com/errata-ai/vale/releases/download/v3.9.0/vale_3.9.0_Linux_64-bit.tar.gz | tar xz vale
+          ./vale --minAlertLevel=error --output=line .
+          exit $?
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import { createFileSystem } from '../../src/components/FileSystem.js'
-import { executeCommand } from '../../src/components/CommandParser.js'
+import { executeCommand, tokenize } from '../../src/components/CommandParser.js'
 
 function makeFs() {
   return createFileSystem({
@@ -143,5 +143,179 @@ describe('executeCommand: unknown command', () => {
     expect(result.isError).toBe(true)
     expect(result.output.toLowerCase()).not.toContain('command not found')
     expect(result.output).toMatch(/don'?t know|hmm/i)
+  })
+})
+
+describe('tokenize: quoting and escapes', () => {
+  test('plain whitespace split', () => {
+    expect(tokenize('cat readme').tokens).toEqual(['cat', 'readme'])
+  })
+  test('double-quoted argument with spaces', () => {
+    expect(tokenize('cat "spaces in name"').tokens).toEqual(['cat', 'spaces in name'])
+  })
+  test('single-quoted argument with spaces', () => {
+    expect(tokenize("cat 'spaces in name'").tokens).toEqual(['cat', 'spaces in name'])
+  })
+  test('backslash escapes whitespace', () => {
+    expect(tokenize('cat spaces\\ in\\ name').tokens).toEqual(['cat', 'spaces in name'])
+  })
+  test('unterminated double quote returns kid-friendly error', () => {
+    const r = tokenize('cat "unclosed')
+    expect(r.tokens).toBeUndefined()
+    expect(r.error).toMatch(/never closed/i)
+  })
+  test('unterminated single quote returns error', () => {
+    const r = tokenize("cat 'unclosed")
+    expect(r.error).toMatch(/never closed/i)
+  })
+  test('trailing backslash returns error', () => {
+    const r = tokenize('cat foo\\')
+    expect(r.error).toMatch(/backslash/i)
+  })
+  test('executeCommand surfaces tokenize error as kid-friendly output', () => {
+    const r = executeCommand('cat "unclosed', makeFs())
+    expect(r.isError).toBe(true)
+    expect(r.output).toMatch(/never closed/i)
+  })
+})
+
+describe('FileSystem: find pattern safety', () => {
+  test('rejects very long patterns instead of risking ReDoS', () => {
+    const fs = createFileSystem({ a: 'hi' })
+    const r = executeCommand('find . -name "' + '*a'.repeat(40) + '"', fs)
+    expect(r.isError).toBe(true)
+    expect(r.output).toMatch(/too long/i)
+  })
+  test('catastrophic-backtrack-style input completes quickly', () => {
+    // Without the non-backtracking matcher, this would freeze for seconds.
+    const tree = {}
+    for (let i = 0; i < 50; i++) tree['file' + i] = 'a'.repeat(30)
+    const fs = createFileSystem(tree)
+    const start = Date.now()
+    const r = executeCommand('find . -name "*a*a*a*a*a*ab"', fs)
+    const elapsed = Date.now() - start
+    expect(elapsed).toBeLessThan(200) // generous; real bug took ~12 seconds
+    expect(r.output).toBe('(no matches)')
+  })
+})
+
+describe('executeCommand: ls -a (hidesDotfiles)', () => {
+  test('plain ls hides dotfiles when hidesDotfiles is true', () => {
+    const fs = createFileSystem({ '.secret': 'x', readme: 'y' }, { hidesDotfiles: true })
+    const r = executeCommand('ls', fs)
+    expect(r.output).toContain('readme')
+    expect(r.output).not.toContain('.secret')
+  })
+  test('ls -a shows dotfiles when hidesDotfiles is true', () => {
+    const fs = createFileSystem({ '.secret': 'x', readme: 'y' }, { hidesDotfiles: true })
+    const r = executeCommand('ls -a', fs)
+    expect(r.output).toContain('.secret')
+    expect(r.output).toContain('readme')
+  })
+  test('plain ls still shows dotfiles when hidesDotfiles is false (default)', () => {
+    const fs = createFileSystem({ '.secret': 'x', readme: 'y' })
+    const r = executeCommand('ls', fs)
+    expect(r.output).toContain('.secret')
+  })
+})
+
+describe('executeCommand: cat ./- (file named dash)', () => {
+  test('reads a file literally named "-" via ./-', () => {
+    const fs = createFileSystem({ '-': 'flag inside dash' })
+    const r = executeCommand('cat ./-', fs)
+    expect(r.output).toBe('flag inside dash')
+  })
+})
+
+describe('executeCommand: file', () => {
+  test('classifies ASCII text', () => {
+    const fs = createFileSystem({ readme: 'hello world\n' })
+    const r = executeCommand('file readme', fs)
+    expect(r.output).toContain('ASCII text')
+  })
+  test('classifies binary-ish data', () => {
+    const fs = createFileSystem({ binary: '\x01\x02\x03\x04\x05\x06\x07\x08\x0b\x0c\x0e\x0f' })
+    const r = executeCommand('file binary', fs)
+    expect(r.output).toContain('data')
+  })
+  test('handles directories', () => {
+    const fs = createFileSystem({ workshop: { readme: 'x' } })
+    const r = executeCommand('file workshop', fs)
+    expect(r.output).toContain('directory')
+  })
+})
+
+describe('executeCommand: find', () => {
+  test('-name glob matches', () => {
+    const fs = createFileSystem({
+      a: 'hi', b: 'hi', c: { 'note.txt': 'yo', 'other.md': 'no' },
+    })
+    const r = executeCommand('find . -name "*.txt"', fs)
+    expect(r.output).toContain('/c/note.txt')
+    expect(r.output).not.toContain('other.md')
+  })
+  test('-size matches exact byte count', () => {
+    const fs = createFileSystem({ a: 'abc', b: 'abcd', c: 'ab' })
+    const r = executeCommand('find . -size 3c', fs)
+    expect(r.output).toContain('/a')
+    expect(r.output).not.toContain('/b')
+    expect(r.output).not.toContain('/c')
+  })
+  test('no matches returns "(no matches)"', () => {
+    const fs = createFileSystem({ a: 'hi' })
+    const r = executeCommand('find . -name "*.xyz"', fs)
+    expect(r.output).toBe('(no matches)')
+  })
+})
+
+describe('executeCommand: grep', () => {
+  test('returns matching lines only', () => {
+    const fs = createFileSystem({ data: 'one\nFLAG{abc}\nthree\n' })
+    const r = executeCommand('grep FLAG data', fs)
+    expect(r.output).toBe('FLAG{abc}')
+  })
+  test('no match returns sentinel', () => {
+    const fs = createFileSystem({ data: 'one\ntwo\n' })
+    const r = executeCommand('grep nope data', fs)
+    expect(r.output).toBe('(no match)')
+  })
+  test('missing args is an error', () => {
+    const r = executeCommand('grep', makeFs())
+    expect(r.isError).toBe(true)
+  })
+})
+
+describe('executeCommand: base64 -d', () => {
+  test('decodes a valid base64 file', () => {
+    // "FLAG{base64_works}\n" -> base64
+    const fs = createFileSystem({ encoded: 'RkxBR3tiYXNlNjRfd29ya3N9Cg==\n' })
+    const r = executeCommand('base64 -d encoded', fs)
+    expect(r.output).toContain('FLAG{base64_works}')
+  })
+  test('without -d flag is an error', () => {
+    const fs = createFileSystem({ encoded: 'aGVsbG8=' })
+    const r = executeCommand('base64 encoded', fs)
+    expect(r.isError).toBe(true)
+  })
+  test('invalid base64 surfaces an error', () => {
+    const fs = createFileSystem({ junk: 'this is not base64 !!!' })
+    const r = executeCommand('base64 -d junk', fs)
+    expect(r.isError).toBe(true)
+  })
+})
+
+describe('executeCommand: strings', () => {
+  test('extracts printable runs from binary noise', () => {
+    const noise = '\x01\x02\x03'
+    const content = noise + 'FLAG{visible}' + noise + 'short' + noise
+    const fs = createFileSystem({ mystery: content })
+    const r = executeCommand('strings mystery', fs)
+    expect(r.output).toContain('FLAG{visible}')
+    expect(r.output).toContain('short')
+  })
+  test('runs shorter than the threshold are dropped', () => {
+    const fs = createFileSystem({ tiny: '\x01a\x01' })
+    const r = executeCommand('strings tiny', fs)
+    expect(r.output).toBe('(no printable strings found)')
   })
 })
