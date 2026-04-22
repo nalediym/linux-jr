@@ -2,6 +2,8 @@
   "name": "linux-jr",
   "private": true,
   "version": "0.1.0",
+  "license": "MIT",
+  "author": "Naledi (@nalediym)",
   "description": "A browser-based Linux terminal for kids (age 7+). Teaches real Linux commands through missions, not lessons.",
   "homepage": "https://linux-jr.vercel.app",
   "repository": {

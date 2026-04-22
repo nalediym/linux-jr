@@ -29,7 +29,14 @@ const PROMPT_CHAR = '>'
 export default function Terminal() {
   const [lines, setLines] = useState([])
   const [input, setInput] = useState('')
-  const [screen, setScreen] = useState('disclaimer') // disclaimer | select | playing
+  const [screen, setScreen] = useState(() => {
+    // Auto-skip disclaimer if already accepted (read once at mount).
+    try {
+      return localStorage.getItem('linuxjr-disclaimer-accepted') === 'true' ? 'select' : 'disclaimer'
+    } catch {
+      return 'disclaimer'
+    }
+  }) // disclaimer | select | playing
   const outputRef = useRef(null)
   const inputRef = useRef(null)
   const fsRef = useRef(null)
@@ -231,17 +238,6 @@ export default function Terminal() {
       }
     }
   }
-
-  // Auto-skip disclaimer if already accepted
-  useEffect(() => {
-    if (screen === 'disclaimer') {
-      try {
-        if (localStorage.getItem('linuxjr-disclaimer-accepted') === 'true') {
-          setScreen('select')
-        }
-      } catch {}
-    }
-  }, [screen])
 
   function handleAccept() {
     try { localStorage.setItem('linuxjr-disclaimer-accepted', 'true') } catch {}
