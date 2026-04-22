@@ -87,7 +87,7 @@ function ParentHint({ onContinue }) {
     }}>
       <div style={{
         fontSize: '0.85rem',
-        color: 'var(--terminal-dim)',
+        color: '#9ca3af', // brighter than --terminal-dim for WCAG AA contrast on --bg
         textTransform: 'uppercase',
         letterSpacing: '0.1em',
       }}>
@@ -112,13 +112,13 @@ function ParentHint({ onContinue }) {
         Linux Jr teaches real Linux commands. The first mission is reading a file with <code style={{ color: 'var(--terminal-green)' }}>cat readme</code>. After that they can play alone.
       </p>
       <p style={{
-        color: 'var(--terminal-dim)',
+        color: '#9ca3af', // brighter than --terminal-dim for WCAG AA contrast on --bg
         fontSize: '0.9rem',
         lineHeight: 1.5,
         textAlign: 'center',
         margin: 0,
       }}>
-        Nothing leaves the device. No accounts, no analytics, no tracking. <a href="/PRIVACY.md" style={{ color: 'var(--terminal-dim)' }}>Privacy stance →</a>
+        Nothing leaves the device. No accounts, no analytics, no tracking. <a href="/PRIVACY.md" style={{ color: '#9ca3af' }}>Privacy stance →</a>
       </p>
       <button
         onClick={onContinue}

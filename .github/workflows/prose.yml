@@ -29,6 +29,11 @@ jobs:
           chmod +x vale
           ./vale --version
 
+      # Download the style packs declared in .vale.ini (Microsoft, alex).
+      # The vale-action did this automatically; the direct binary does not.
+      - name: Sync vale styles
+        run: ./vale sync
+
       # Print all findings (any severity) to the log for visibility, then
       # gate the job on error-level findings only — currently
       # LinuxJr.BannedWords (SOUL.md banned words) and Vale.Spelling.
