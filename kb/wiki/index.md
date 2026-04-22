@@ -1,8 +1,8 @@
 # Knowledge Base Index
 
 > Auto-maintained by `/knowledge-base compile`. Do not edit manually.
-> Last compiled: 2026-04-22T00:00:00Z
-> Sources: 27 | Concepts: 32 | Words: ~14,800
+> Last compiled: 2026-04-22T01:00:00Z
+> Sources: 28 | Concepts: 34 | Words: ~16,200
 
 ## Sources
 
@@ -38,6 +38,7 @@
 - [bandit-level-4-to-5](sources/ctf-beginner--bandit-level-4-to-5.md.md) — `file ./*` (identify readable file)
 - [bandit-level-5-to-6](sources/ctf-beginner--bandit-level-5-to-6.md.md) — `find -size` (predicate composition)
 - [bandit-level-6-to-7](sources/ctf-beginner--bandit-level-6-to-7.md.md) — `grep PATTERN FILE` *(unverified — bandit7.html 404)*
+- [bandit-level-9-to-10](sources/ctf-beginner--bandit-level-9-to-10.md.md) — `strings` extracts printable text from binary *(unverified — bandit10.html intermittent 404)*
 - [picoctf-overview](sources/ctf-beginner--picoctf-overview.md.md) — General Skills category, common encoding/text puzzles
 - [htb-starting-point](sources/ctf-beginner--htb-starting-point.md.md) — Tier 0/1 structure, `HTB{}` flag-format origin *(unverified — page 500)*
 
@@ -85,10 +86,12 @@
 - [stack-architecture](concepts/stack-architecture.md) — React/Vite/bun stack and module boundaries
 
 ### Arcade — CTF lineage
-- [cat-command](concepts/cat-command.md) — read file contents (Game #1 primitive)
+- [cat-command](concepts/cat-command.md) — read file contents (Games #1, #2, #3, #4)
 - [grep-command](concepts/grep-command.md) — search file for pattern (Game #7)
 - [find-command](concepts/find-command.md) — search filesystem by predicate (Game #6)
 - [file-command](concepts/file-command.md) — identify file type (Game #5)
+- [base64-command](concepts/base64-command.md) — decode base64-encoded content (Game #8)
+- [strings-command](concepts/strings-command.md) — extract printable runs from binary (Game #9)
 - [flag-format](concepts/flag-format.md) — `FLAG{snake_case}` convention (cross-game)
 
 ## Uncategorized Claims (singletons)

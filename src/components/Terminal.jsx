@@ -10,6 +10,137 @@ import { createTelemetry } from '../hooks/useTelemetry'
 
 const PROMPT_CHAR = '>'
 
+function FeedbackPanel({ gameId, rating, text, onRating, onText, onSubmit, onSkip }) {
+  const ratings = [
+    { value: 1, emoji: '😐', label: 'meh' },
+    { value: 2, emoji: '😊', label: 'fun' },
+    { value: 3, emoji: '🤩', label: 'awesome' },
+  ]
+  return (
+    <div
+      style={{
+        borderTop: '2px solid var(--terminal-green)',
+        background: '#0e120e',
+        padding: '0.75rem 1rem',
+        flexShrink: 0,
+        fontFamily: 'var(--font-ui)',
+      }}
+      data-testid="arcade-feedback"
+      data-game-id={gameId}
+    >
+      <div style={{
+        color: 'var(--terminal-green)',
+        fontSize: '0.95rem',
+        fontWeight: 600,
+        marginBottom: '0.5rem',
+      }}>
+        Flag captured! How was it?
+      </div>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: rating ? '0.5rem' : 0 }}>
+        {ratings.map(r => (
+          <button
+            key={r.value}
+            type="button"
+            onClick={() => onRating(r.value)}
+            aria-label={`rate ${r.label}`}
+            style={{
+              flex: 1,
+              minHeight: '48px',
+              fontSize: '1.6rem',
+              background: rating === r.value ? 'var(--terminal-green)' : '#1a1a1a',
+              color: rating === r.value ? 'var(--bg)' : 'inherit',
+              border: rating === r.value ? '2px solid var(--terminal-green)' : '2px solid #333',
+              borderRadius: '8px',
+              cursor: 'pointer',
+            }}
+          >
+            {r.emoji}
+          </button>
+        ))}
+      </div>
+      {rating && (
+        <>
+          <textarea
+            value={text}
+            onChange={e => onText(e.target.value)}
+            placeholder="tell us more (optional)"
+            rows={2}
+            maxLength={500}
+            style={{
+              width: '100%',
+              boxSizing: 'border-box',
+              background: '#1a1a1a',
+              color: 'var(--text)',
+              border: '1px solid #333',
+              borderRadius: '8px',
+              padding: '0.5rem',
+              fontFamily: 'var(--font-ui)',
+              fontSize: '0.95rem',
+              resize: 'vertical',
+              marginBottom: '0.5rem',
+            }}
+          />
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              type="button"
+              onClick={onSubmit}
+              style={{
+                flex: 1,
+                minHeight: '44px',
+                background: 'var(--terminal-green)',
+                color: 'var(--bg)',
+                border: 'none',
+                borderRadius: '8px',
+                fontFamily: 'var(--font-ui)',
+                fontWeight: 600,
+                fontSize: '1rem',
+                cursor: 'pointer',
+              }}
+            >
+              Send & back to Arcade
+            </button>
+            <button
+              type="button"
+              onClick={onSkip}
+              style={{
+                minHeight: '44px',
+                background: 'transparent',
+                color: 'var(--terminal-dim)',
+                border: '1px solid var(--terminal-dim)',
+                borderRadius: '8px',
+                padding: '0 1rem',
+                fontFamily: 'var(--font-ui)',
+                fontSize: '0.95rem',
+                cursor: 'pointer',
+              }}
+            >
+              Skip
+            </button>
+          </div>
+        </>
+      )}
+      {!rating && (
+        <button
+          type="button"
+          onClick={onSkip}
+          style={{
+            marginTop: '0.5rem',
+            background: 'transparent',
+            color: 'var(--terminal-dim)',
+            border: 'none',
+            fontSize: '0.85rem',
+            fontFamily: 'var(--font-ui)',
+            cursor: 'pointer',
+            padding: '0.25rem 0',
+          }}
+        >
+          skip — back to Arcade
+        </button>
+      )}
+    </div>
+  )
+}
+
 // One-time migration from the old `nawazi-*` key prefix to `linuxjr-*`.
 // Runs at import before any component code reads localStorage. Safe to delete
 // once the live deployment has rolled over (no one has old keys anymore).
@@ -46,6 +177,12 @@ export default function Terminal() {
   const telemetryRef = useRef(null)
   // Tracks which screen the player came from so mission-complete returns there.
   const originScreenRef = useRef('campaign-select')
+  // Arcade-only post-capture feedback. Null = no panel; string = id of game
+  // whose flag was just captured. While set, the auto-return timer is paused
+  // until the kid taps a rating or skips.
+  const [feedbackForGameId, setFeedbackForGameId] = useState(null)
+  const [feedbackRating, setFeedbackRating] = useState(null) // 1 | 2 | 3 | null
+  const [feedbackText, setFeedbackText] = useState('')
 
   function addLine(text, type = 'output') {
     setLines(prev => [...prev, { text, type, ts: Date.now() }])
@@ -54,7 +191,9 @@ export default function Terminal() {
   function startMission(mission, origin = 'campaign-select') {
     activeMissionRef.current = mission
     originScreenRef.current = origin
-    fsRef.current = createFileSystem(structuredClone(mission.filesystem))
+    fsRef.current = createFileSystem(structuredClone(mission.filesystem), {
+      hidesDotfiles: !!mission.hidesDotfiles,
+    })
     missionRef.current = createMissionEngine(mission)
     telemetryRef.current = createTelemetry(mission.id)
 
@@ -169,7 +308,14 @@ export default function Terminal() {
           const am = activeMissionRef.current
           playVoice(am?.audio?.complete || VOICE_LINES.missionComplete.key, VOICE_LINES.missionComplete.text)
           const returnTo = originScreenRef.current || 'campaign-select'
-          setTimeout(() => setScreen(returnTo), 5000)
+          if (returnTo === 'arcade-grid') {
+            // Arcade: open the feedback panel; the kid dismisses it manually.
+            setFeedbackRating(null)
+            setFeedbackText('')
+            setFeedbackForGameId(progress.missionId)
+          } else {
+            setTimeout(() => setScreen(returnTo), 5000)
+          }
 
           // Save completion — arcade games go in their own array
           try {
@@ -207,7 +353,7 @@ export default function Terminal() {
   }, [])
 
   // Tab completion
-  const COMMANDS = ['pwd', 'ls', 'cd', 'cat', 'mkdir', 'man', 'help', 'clear']
+  const COMMANDS = ['pwd', 'ls', 'cd', 'cat', 'file', 'find', 'grep', 'base64', 'strings', 'mkdir', 'man', 'help', 'clear']
 
   function handleKeyDown(e) {
     if (e.key !== 'Tab') return
@@ -678,6 +824,34 @@ export default function Terminal() {
           </div>
         ))}
       </div>
+
+      {feedbackForGameId && (
+        <FeedbackPanel
+          gameId={feedbackForGameId}
+          rating={feedbackRating}
+          text={feedbackText}
+          onRating={setFeedbackRating}
+          onText={setFeedbackText}
+          onSubmit={() => {
+            try {
+              const all = JSON.parse(localStorage.getItem('linuxjr-feedback') || '[]')
+              all.push({
+                gameId: feedbackForGameId,
+                rating: feedbackRating,
+                text: feedbackText.trim() || null,
+                ts: Date.now(),
+              })
+              localStorage.setItem('linuxjr-feedback', JSON.stringify(all))
+            } catch {}
+            setFeedbackForGameId(null)
+            setScreen(originScreenRef.current || 'arcade-grid')
+          }}
+          onSkip={() => {
+            setFeedbackForGameId(null)
+            setScreen(originScreenRef.current || 'arcade-grid')
+          }}
+        />
+      )}
 
       {/* Custom input bar — iPad-friendly, not raw xterm.js textarea */}
       <form onSubmit={handleSubmit} style={{
