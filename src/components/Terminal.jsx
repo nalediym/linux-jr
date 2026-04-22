@@ -10,6 +10,139 @@ import { createTelemetry } from '../hooks/useTelemetry'
 
 const PROMPT_CHAR = '>'
 
+/**
+ * Tiny footer on the home screen that exposes collected playtest feedback.
+ * Only renders when at least one feedback entry exists in localStorage.
+ * Click the button → copies the JSON dump to clipboard. The kid never sees
+ * this unless they've left feedback themselves; for parents/playtesters it's
+ * the only way to retrieve what was collected (no analytics, no backend).
+ */
+function FeedbackFooter() {
+  const [copied, setCopied] = useState(false)
+  // Read once at mount — count won't change during a single home-screen
+  // viewing because new feedback only happens after capturing a flag, which
+  // lives on a different screen.
+  const [count] = useState(() => {
+    try {
+      const all = JSON.parse(localStorage.getItem('linuxjr-feedback') || '[]')
+      return Array.isArray(all) ? all.length : 0
+    } catch { return 0 }
+  })
+  if (count === 0) return null
+  return (
+    <div style={{
+      marginTop: '2rem',
+      paddingTop: '1rem',
+      borderTop: '1px solid #222',
+      fontSize: '0.8rem',
+      color: 'var(--terminal-dim)',
+      fontFamily: 'var(--font-ui)',
+      textAlign: 'center',
+    }}>
+      <button
+        type="button"
+        onClick={async () => {
+          try {
+            const all = localStorage.getItem('linuxjr-feedback') || '[]'
+            await navigator.clipboard.writeText(all)
+            setCopied(true)
+            setTimeout(() => setCopied(false), 2000)
+          } catch {}
+        }}
+        style={{
+          background: 'transparent',
+          color: 'var(--terminal-dim)',
+          border: '1px solid var(--terminal-dim)',
+          borderRadius: '6px',
+          padding: '0.4rem 0.8rem',
+          fontSize: '0.8rem',
+          fontFamily: 'var(--font-ui)',
+          cursor: 'pointer',
+        }}
+      >
+        {copied ? '✓ copied' : `📋 copy ${count} feedback ${count === 1 ? 'entry' : 'entries'} as JSON`}
+      </button>
+    </div>
+  )
+}
+
+/**
+ * First-run parent card. Shows once, before the disclaimer screen, when
+ * there's no `linuxjr-disclaimer-accepted` AND no `linuxjr-parent-seen` key.
+ * Aimed at the parent who pulled up the URL, not the kid. Skippable.
+ */
+function ParentHint({ onContinue }) {
+  return (
+    <div style={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '1.25rem',
+      padding: '2rem',
+      maxWidth: '480px',
+      margin: '0 auto',
+      fontFamily: 'var(--font-ui)',
+    }}>
+      <div style={{
+        fontSize: '0.85rem',
+        color: '#9ca3af', // brighter than --terminal-dim for WCAG AA contrast on --bg
+        textTransform: 'uppercase',
+        letterSpacing: '0.1em',
+      }}>
+        For the grown-up
+      </div>
+      <h2 style={{
+        fontSize: '1.6rem',
+        color: 'var(--text)',
+        textAlign: 'center',
+        margin: 0,
+        lineHeight: 1.3,
+      }}>
+        Sit with your kid for the first 5 minutes.
+      </h2>
+      <p style={{
+        color: 'var(--text)',
+        fontSize: '1rem',
+        lineHeight: 1.6,
+        textAlign: 'center',
+        margin: 0,
+      }}>
+        Linux Jr teaches real Linux commands. The first mission is reading a file with <code style={{ color: 'var(--terminal-green)' }}>cat readme</code>. After that they can play alone.
+      </p>
+      <p style={{
+        color: '#9ca3af', // brighter than --terminal-dim for WCAG AA contrast on --bg
+        fontSize: '0.9rem',
+        lineHeight: 1.5,
+        textAlign: 'center',
+        margin: 0,
+      }}>
+        Nothing leaves the device. No accounts, no analytics, no tracking. <a href="/PRIVACY.md" style={{ color: '#9ca3af' }}>Privacy stance →</a>
+      </p>
+      <button
+        onClick={onContinue}
+        style={{
+          marginTop: '0.5rem',
+          padding: '1rem 2rem',
+          fontSize: '1.1rem',
+          fontFamily: 'var(--font-ui)',
+          fontWeight: 600,
+          background: 'var(--terminal-green)',
+          color: 'var(--bg)',
+          border: 'none',
+          borderRadius: '12px',
+          cursor: 'pointer',
+          minHeight: '56px',
+          minWidth: '200px',
+        }}
+      >
+        Got it — let&apos;s start
+      </button>
+    </div>
+  )
+}
+
 function FeedbackPanel({ gameId, rating, text, onRating, onText, onSubmit, onSkip }) {
   const ratings = [
     { value: 1, emoji: '😐', label: 'meh' },
@@ -164,7 +297,9 @@ export default function Terminal() {
   const [screen, setScreen] = useState(() => {
     // Auto-skip disclaimer if already accepted (read once at mount).
     try {
-      return localStorage.getItem('linuxjr-disclaimer-accepted') === 'true' ? 'home' : 'disclaimer'
+      if (localStorage.getItem('linuxjr-disclaimer-accepted') === 'true') return 'home'
+      if (localStorage.getItem('linuxjr-parent-seen') === 'true') return 'disclaimer'
+      return 'parent-hint'
     } catch {
       return 'disclaimer'
     }
@@ -397,6 +532,17 @@ export default function Terminal() {
     setScreen('home')
   }
 
+  if (screen === 'parent-hint') {
+    return (
+      <ParentHint
+        onContinue={() => {
+          try { localStorage.setItem('linuxjr-parent-seen', 'true') } catch {}
+          setScreen('disclaimer')
+        }}
+      />
+    )
+  }
+
   if (screen === 'disclaimer') {
     return (
       <div style={{
@@ -539,6 +685,7 @@ export default function Terminal() {
             </div>
           </button>
         </div>
+        <FeedbackFooter />
       </div>
     )
   }

@@ -17,29 +17,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Vale
-        uses: errata-ai/vale-action@reviewdog
-        with:
-          # Vale itself, run directly. We tried vale-action with reviewdog but
-          # its fail_on_error semantics treat WARNING findings as failures
-          # regardless of `level` config — so prose preferences blocked CI.
-          # Skip reviewdog and run vale's own check instead; fail only on
-          # ERROR-level findings (SOUL.md banned words via LinuxJr.BannedWords).
-          fail_on_error: false
-          files: all
-          version: 3.9.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Independently fail the job if vale reports any error-level findings.
-      # Vale's `--minAlertLevel=error` lists only the rules we treat as gates.
-      - name: Vale gate (error-level only)
+      # Run vale directly from the official release tarball. We tried
+      # errata-ai/vale-action with reviewdog several times — its
+      # fail_on_error semantics treat any reviewdog finding as a failure
+      # regardless of severity, which made WARNING-level prose preferences
+      # block CI. The direct binary respects --minAlertLevel cleanly.
+      - name: Install vale
         run: |
-          curl -sL https://github.com/errata-ai/vale/releases/download/v3.9.0/vale_3.9.0_Linux_64-bit.tar.gz | tar xz vale
-          ./vale --minAlertLevel=error --output=line .
-          exit $?
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          curl -sL https://github.com/errata-ai/vale/releases/download/v3.9.0/vale_3.9.0_Linux_64-bit.tar.gz \
+            | tar xz vale
+          chmod +x vale
+          ./vale --version
+
+      # Download the style packs declared in .vale.ini (Microsoft, alex).
+      # The vale-action did this automatically; the direct binary does not.
+      - name: Sync vale styles
+        run: ./vale sync
+
+      # Print all findings (any severity) to the log for visibility, then
+      # gate the job on error-level findings only — currently
+      # LinuxJr.BannedWords (SOUL.md banned words) and Vale.Spelling.
+      - name: Vale (advisory pass — log only)
+        run: ./vale --output=line . || true
+
+      - name: Vale gate (error-level only)
+        run: ./vale --minAlertLevel=error --output=line .
 
   alex:
     name: alex (inclusive language)

@@ -15,9 +15,13 @@ import { test, expect } from '@playwright/test'
 
 test.describe('Mission 01: The Missing Blueprint', () => {
   test('kid can complete M1 end-to-end', async ({ page }) => {
-    // Clean slate — no previous localStorage
+    // Clean slate — no previous localStorage. Skip the first-run parent
+    // hint card so we land directly on the disclaimer.
     await page.goto('/')
-    await page.evaluate(() => localStorage.clear())
+    await page.evaluate(() => {
+      localStorage.clear()
+      localStorage.setItem('linuxjr-parent-seen', 'true')
+    })
     await page.reload()
 
     // Welcome screen
