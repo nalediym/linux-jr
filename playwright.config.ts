@@ -25,7 +25,7 @@ export default defineConfig({
     {
       name: 'ipad-safari-sim',
       // iPad landscape — the target device per CLAUDE.md
-      use: { ...devices['iPad Pro 11 landscape'] },
+      use: { ...devices['iPad Pro 11 landscape'], browserName: 'webkit' },
     },
   ],
 

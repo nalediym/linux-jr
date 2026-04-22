@@ -14,14 +14,14 @@ const DSN = import.meta.env.VITE_SENTRY_DSN
 if (DSN) {
   // Dynamic import so the Sentry SDK isn't in the bundle unless
   // someone's actually using it. ~30 kB savings when disabled.
-  import('@sentry/react').then(({ init, BrowserTracing, Replay }) => {
+  import('@sentry/react').then(({ init, browserTracingIntegration, replayIntegration }) => {
     init({
       dsn: DSN,
       environment: import.meta.env.MODE || 'production',
       release: import.meta.env.VITE_GIT_SHA || 'unknown',
       integrations: [
-        new BrowserTracing(),
-        new Replay({
+        browserTracingIntegration(),
+        replayIntegration({
           // Only capture session replay when an error fires — preserves
           // kids' privacy on the non-error 99% of sessions.
           sessionSampleRate: 0,

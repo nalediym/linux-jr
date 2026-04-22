@@ -21,6 +21,7 @@
 
         "uses-rel-preconnect": "off",
         "uses-rel-preload": "off",
+        "network-dependency-tree-insight": "off",
         "unused-javascript": ["warn", {"maxNumericValue": 10000}]
       }
     },
