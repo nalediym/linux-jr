@@ -1,0 +1,17 @@
+# Linux Jr — canonical character name enforcement.
+#
+# After the Bluey → originals rewrite, any text using the old
+# character names is a bug. This rule catches it on every PR.
+#
+# Context: PR #2 swapped the cast. Bingo → Pip, Bandit → Captain Rex,
+# Bluey → (removed), Chilli → Grandma.
+
+extends: existence
+message: "Old character name: '%s'. Use the canonical cast — see kb/wiki/concepts/ for references."
+level: warning
+tokens:
+  - '\bBingo\b'
+  - '\bBandit\b'
+  - '\bChilli\b'
+  - '\bHeeler\b'
+  - Nawazi

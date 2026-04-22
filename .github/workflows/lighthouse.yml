@@ -1,0 +1,27 @@
+name: Lighthouse CI
+
+on:
+  pull_request:
+
+jobs:
+  lighthouse:
+    name: lighthouse
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+
+      - name: Run Lighthouse CI
+        run: |
+          # Serve the build and run Lighthouse against it
+          bunx --bun vite preview --port 4173 &
+          sleep 5
+          bunx --bun lhci autorun --config=.lighthouserc.json --collect.url=http://localhost:4173
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
