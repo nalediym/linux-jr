@@ -155,7 +155,7 @@ Documented in `SOUL.md`. Quick highlights:
 - No analytics or tracking
 - No test framework — small enough that typed task checks + playthroughs + manual iPad QA are the verification story
 - No click-to-execute buttons — the kid **types**, no shortcuts
-- No red error styling, no "wrong", no failure states
+- No red error styling, no scary failure states, no "you got it incorrect" messaging
 - No villains, no scary, no time pressure
 - No jargon a 7-year-old wouldn't know (`shell`, `kernel`, `stdin`, `permission` — all deferred)
 
