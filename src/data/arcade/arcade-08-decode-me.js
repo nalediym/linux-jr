@@ -3,7 +3,6 @@
  *
  * Lineage: picoCTF "Bases" / OverTheWire Bandit Level 10 → 11 (base64)
  *   https://picoctf.org (General Skills category)
- *   KB concept: kb/wiki/concepts/flag-format.md
  *
  * Mechanic: file contents are base64-encoded; `base64 -d` reveals the flag.
  * The encoded string below decodes to:
@@ -33,6 +32,5 @@ export const ARCADE_DECODE_ME = {
     source: 'picoCTF General Skills',
     level: 'Bases (base64 family)',
     url: 'https://picoctf.org',
-    kb_concept: 'kb/wiki/concepts/flag-format.md',
   },
 }

@@ -3,7 +3,6 @@
  *
  * Lineage: OverTheWire Bandit Level 5 → Level 6
  *   https://overthewire.org/wargames/bandit/bandit6.html
- *   KB concept: kb/wiki/concepts/find-command.md
  *
  * Mechanic: many files, only one matches an exact byte size. `find` with
  * `-size 1033c`. The Bandit version also requires `! -executable`, but the
@@ -43,6 +42,5 @@ export const ARCADE_FIND_BY_SIZE = {
     source: 'OverTheWire Bandit',
     level: 'Level 5 → Level 6',
     url: 'https://overthewire.org/wargames/bandit/bandit6.html',
-    kb_concept: 'kb/wiki/concepts/find-command.md',
   },
 }

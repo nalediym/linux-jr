@@ -3,7 +3,6 @@
  *
  * Lineage: OverTheWire Bandit Level 2 → Level 3
  *   https://overthewire.org/wargames/bandit/bandit3.html
- *   KB concept: kb/wiki/concepts/cat-command.md
  *
  * Mechanic: filename has spaces. Without quoting the shell tokenizes each
  * word. `cat "spaces in filename"` works because our tokenizer respects
@@ -30,6 +29,5 @@ export const ARCADE_SPACES_BETWEEN = {
     source: 'OverTheWire Bandit',
     level: 'Level 2 → Level 3',
     url: 'https://overthewire.org/wargames/bandit/bandit3.html',
-    kb_concept: 'kb/wiki/concepts/cat-command.md',
   },
 }

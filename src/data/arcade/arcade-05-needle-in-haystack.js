@@ -3,7 +3,6 @@
  *
  * Lineage: OverTheWire Bandit Level 4 → Level 5
  *   https://overthewire.org/wargames/bandit/bandit5.html
- *   KB concept: kb/wiki/concepts/file-command.md
  *
  * Mechanic: many files in a directory; only one is human-readable. Use
  * `file *` to classify each, then `cat` the ASCII text one. Other files
@@ -40,6 +39,5 @@ export const ARCADE_NEEDLE_IN_HAYSTACK = {
     source: 'OverTheWire Bandit',
     level: 'Level 4 → Level 5',
     url: 'https://overthewire.org/wargames/bandit/bandit5.html',
-    kb_concept: 'kb/wiki/concepts/file-command.md',
   },
 }

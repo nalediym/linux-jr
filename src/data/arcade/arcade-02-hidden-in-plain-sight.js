@@ -3,7 +3,6 @@
  *
  * Lineage: OverTheWire Bandit Level 1 → Level 2 (`cat ./-`)
  *   https://overthewire.org/wargames/bandit/bandit2.html
- *   KB concept: kb/wiki/concepts/cat-command.md
  *
  * Mechanic: a file literally named `-`. Naive `cat -` reads stdin; you have
  * to qualify with `./-`. Our parser doesn't grab single-dash as a flag
@@ -32,6 +31,5 @@ export const ARCADE_HIDDEN_IN_PLAIN_SIGHT = {
     source: 'OverTheWire Bandit',
     level: 'Level 1 → Level 2',
     url: 'https://overthewire.org/wargames/bandit/bandit2.html',
-    kb_concept: 'kb/wiki/concepts/cat-command.md',
   },
 }

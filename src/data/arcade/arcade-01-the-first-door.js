@@ -3,7 +3,6 @@
  *
  * Lineage: OverTheWire Bandit Level 0 → Level 1
  *   https://overthewire.org/wargames/bandit/bandit1.html
- *   KB concept: kb/wiki/concepts/cat-command.md
  *
  * Real-CTF mechanic preserved: password sits in a file named `readme` in the
  * starting directory; `cat readme` captures it. Adapted for kid register —
@@ -30,6 +29,5 @@ export const ARCADE_THE_FIRST_DOOR = {
     source: 'OverTheWire Bandit',
     level: 'Level 0 → Level 1',
     url: 'https://overthewire.org/wargames/bandit/bandit1.html',
-    kb_concept: 'kb/wiki/concepts/cat-command.md',
   },
 }

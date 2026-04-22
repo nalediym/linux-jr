@@ -3,7 +3,6 @@
  *
  * Lineage: OverTheWire Bandit Level 9 → Level 10 (`strings`)
  *   picoCTF General Skills "strings" challenges
- *   KB concept: kb/wiki/concepts/file-command.md (file is the prerequisite)
  *
  * Mechanic: a file that looks like binary noise but has readable text
  * scattered inside. `strings` extracts the printable runs.
@@ -46,6 +45,5 @@ export const ARCADE_STRINGS = {
     source: 'OverTheWire Bandit',
     level: 'Level 9 → Level 10',
     url: 'https://overthewire.org/wargames/bandit/bandit10.html',
-    kb_concept: 'kb/wiki/concepts/file-command.md',
   },
 }

@@ -3,7 +3,6 @@
  *
  * Lineage: OverTheWire Bandit Level 3 → Level 4
  *   https://overthewire.org/wargames/bandit/bandit4.html
- *   KB concept: kb/wiki/concepts/cat-command.md
  *
  * Mechanic: file starts with a dot, so plain `ls` hides it. The kid must
  * use `ls -a`. The arcade FS opts into real Linux semantics with
@@ -33,6 +32,5 @@ export const ARCADE_DOT_FILES = {
     source: 'OverTheWire Bandit',
     level: 'Level 3 → Level 4',
     url: 'https://overthewire.org/wargames/bandit/bandit4.html',
-    kb_concept: 'kb/wiki/concepts/cat-command.md',
   },
 }

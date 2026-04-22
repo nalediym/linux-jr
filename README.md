@@ -2,7 +2,7 @@
 
 > **A browser-based Linux terminal for kids.** Teaches real commands through missions, not lessons — so when they grow up and open Terminal.app, the muscle memory is already there.
 
-**Live demo:** https://linux-jr.vercel.app &nbsp;·&nbsp; **CLI:** `npx linuxjr` &nbsp;·&nbsp; [SOUL.md](./SOUL.md) &nbsp;·&nbsp; [Knowledge base](./kb/wiki/index.md)
+**Live demo:** https://linux-jr.vercel.app &nbsp;·&nbsp; **CLI:** `npx linuxjr` &nbsp;·&nbsp; [SOUL.md](./SOUL.md)
 
 <!-- TODO: hero GIF of M1 gameplay at 600px wide -->
 <!-- ![Linux Jr — M1 gameplay](./docs/screenshots/hero.gif) -->
@@ -54,11 +54,11 @@ Most projects have a `README` and a `CLAUDE.md` — "how to work." Very few have
 
 The reason this exists: one of my own iterations tried to build a "6-beat mission shape" with modal cards for mission briefings and post-mission callbacks. It violated `SOUL.md #1` (the terminal IS the whole product). I caught it, walked it back, and [committed the rejection as a tombstone](https://github.com/nalediym/linux-jr/tree/engine/terminal-extension) so future sessions don't re-propose the same mistake.
 
-### 2. An LLM-compiled world bible ([`kb/`](./kb/wiki/index.md))
+### 2. An LLM-compiled world bible (local `kb/`, gitignored)
 
-The world — Pip the kid inventor, Captain Rex the mentor, Sprocket the half-built robot cat, the Workshop setting, the 10-mission arc — lives in a scratchpad outside this repo. A compile step (via the `/knowledge-base` skill) ingests the bible + the mission files + `CLAUDE.md` and produces a queryable markdown wiki at `kb/wiki/`: **27 concept pages** (characters, locations, commands, arcs, style rules), **99 chunks**, zero lint errors, content-addressed citations.
+The world — Pip the kid inventor, Captain Rex the mentor, Sprocket the half-built robot cat, the Workshop setting, the 10-mission arc — lives in a scratchpad outside this repo. A compile step (via the `/knowledge-base` skill) ingests the bible + the mission files + `CLAUDE.md` and produces a queryable markdown wiki at `kb/wiki/`: characters, locations, commands, arcs, style rules — content-addressed citations, zero lint errors. The Arcade adds a parallel CTF lineage layer (Bandit + picoCTF source pages, command concept pages).
 
-When I draft a new mission I can ask *"has Pip met Captain Rex on-page yet?"* or *"what props are already in the toolbox?"* and get cited answers. It's an experiment in keeping world canon consistent across dozens of missions without holding it all in my head.
+When I draft a new mission I can ask *"has Pip met Captain Rex on-page yet?"* or *"what props are already in the toolbox?"* and get cited answers. It's an experiment in keeping world canon consistent across dozens of missions without holding it all in my head. The wiki is **deliberately gitignored** — it's a working tool for me, not a deliverable for anyone else.
 
 ## Architecture
 
@@ -67,24 +67,30 @@ src/
   components/
     Terminal.jsx       Main UI — custom input bar (not raw xterm.js), iPad-friendly
     FileSystem.js      In-memory virtual filesystem — dirs are objects, files are strings
-    CommandParser.js   Switch on command name — pwd, ls, cd, cat, mkdir, help
+                       (per-mission `hidesDotfiles` opt-in for the arcade)
+    CommandParser.js   Tokenizer (quoted args, escapes) + switch on command name
     MissionEngine.js   Typed task checks (pwd_equals, command_used, output_contains, file_read)
   data/
-    missions/          One file per mission — filesystem tree + task sequence + story
+    missions/          Campaign — story missions, in order, ages 7+
+    arcade/            Arcade — CTF mini-games, any order, ages 8+
   hooks/
     useVoice.js        ElevenLabs MP3 with speechSynthesis fallback
     useTerminalSounds  Procedural Web Audio beeps + barks
     useTelemetry.js    localStorage play log (for later adaptive hints)
 
 cli/                   Ink-based CLI workspace — npx linuxjr
-kb/                    Compiled knowledge base (queryable world canon)
 SOUL.md                The non-negotiables
 CLAUDE.md              How to work in this repo
+kb/                    Local knowledge base (gitignored — see "two things this is about")
 ```
 
 No router. Single-page app. The terminal *is* the whole product.
 
-## The missions
+## Two products in one app
+
+After the disclaimer, the kid lands on a home screen with two doors.
+
+### Campaign — story missions, in order, ages 7+
 
 | # | Title | Teaches | Concept |
 |---|---|---|---|
@@ -92,23 +98,45 @@ No router. Single-page app. The terminal *is* the whole product.
 | 2 | The Secret Code | nested `cd`, `cat` across deeper trees | decomposition — break a 4-digit problem into four 1-digit ones |
 | 3 | The Maze | `cd ..`, deep navigation, dotfiles | sequencing — step-by-step instructions |
 
-Missions 4–10 are drafted in the bible and waiting on a prerequisite: `touch` / `echo` / `man` need to be added to `CommandParser.js` before Act 2.
+Missions 4–10 are drafted in the bible and waiting on a prerequisite: `touch` / `echo` / `man` need to be added to `CommandParser.js` before Act 2. Each mission has a rated Cyberchase-inspired shape — hook, brief, concept intro, play, real-world callback, ethos reflection — but all of it lives as terminal output. No modal cards. See `SOUL.md` for why.
 
-Each mission has a rated Cyberchase-inspired shape — hook, brief, concept intro, play, real-world callback, ethos reflection — but all of it lives as terminal output. No modal cards. See `SOUL.md` for why.
+### Arcade — CTF mini-games, any order, ages 8+
+
+Sibling product surface for older kids. Each game is a single command-line puzzle adapted from a real beginner CTF challenge ([OverTheWire Bandit](https://overthewire.org/wargames/bandit/), [picoCTF](https://picoctf.org) General Skills). No narrative, no unlock gating, just capture the flag.
+
+| # | Title | Adapted from | Command |
+|---|---|---|---|
+| 1 | The First Door | Bandit Level 0 → 1 | `cat readme` |
+| 2 | Hidden in Plain Sight | Bandit Level 1 → 2 | `cat ./-` (file named dash) |
+| 3 | Spaces Between | Bandit Level 2 → 3 | quoted `cat` |
+| 4 | Dot Files | Bandit Level 3 → 4 | `ls -a` |
+| 5 | Needle in a Haystack | Bandit Level 4 → 5 | `file *` |
+| 6 | Find by Size | Bandit Level 5 → 6 | `find -size` |
+| 7 | grep the Flag | Bandit Level 6 → 7 | `grep` |
+| 8 | Decode Me | picoCTF "Bases" | `base64 -d` |
+| 9 | Strings | Bandit Level 9 → 10 | `strings` |
+
+Pipes (`grep | sort`), `chmod`, and simulated `ssh` are deferred — each is a meaningful engine investment on its own. After capture, the kid sees a 😐 / 😊 / 🤩 rating prompt with an optional textarea so playtest feedback lands in `localStorage.linuxjr-feedback` for review.
 
 ## Commands currently wired up
 
 | Command | What it does | Kid framing |
 |---|---|---|
 | `pwd` | print working directory | "Where am I?" |
-| `ls` | list files | "What's in here?" |
+| `ls`, `ls -a` | list files (`-a` reveals dotfiles) | "What's in here?" |
 | `cd` | change directory | "Go to..." |
 | `cd ..` | parent directory | "Go back" |
 | `cat` | read file | "Read this..." |
+| `file` | identify file type | "What kind of thing is it?" |
+| `find` | search filesystem (`-name`, `-size`, `-type`) | "Where is it?" |
+| `grep` | search inside a file | "Find this in here" |
+| `base64 -d` | decode base64 | "Unscramble this" |
+| `strings` | extract printable text | "Pull readable bits out" |
 | `mkdir` | make directory | "Build a room" |
+| `man` | command help | "How does this work?" |
 | `help` | list available commands | "What can I do?" |
 
-Also: Tab completion, `clear`, command history.
+Also: tab completion, `clear`, command history, quoted arguments (`cat "filename with spaces"`).
 
 ## Stack
 

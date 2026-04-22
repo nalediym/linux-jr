@@ -4,7 +4,6 @@
  * Lineage: OverTheWire Bandit Level 6 → Level 7
  *   https://overthewire.org/wargames/bandit/bandit7.html (canonical: grep PATTERN FILE)
  *   picoCTF General Skills (haystack search)
- *   KB concept: kb/wiki/concepts/grep-command.md
  *
  * Mechanic: a long file, one line contains the flag. `grep FLAG data.txt`
  * filters to just that line.
@@ -40,6 +39,5 @@ export const ARCADE_GREP_THE_FLAG = {
     source: 'OverTheWire Bandit',
     level: 'Level 6 → Level 7',
     url: 'https://overthewire.org/wargames/bandit/bandit7.html',
-    kb_concept: 'kb/wiki/concepts/grep-command.md',
   },
 }
