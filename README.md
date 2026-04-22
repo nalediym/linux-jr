@@ -4,8 +4,9 @@
 
 **Live demo:** https://linux-jr.vercel.app &nbsp;·&nbsp; **CLI:** `npx linuxjr` &nbsp;·&nbsp; [SOUL.md](./SOUL.md)
 
-<!-- TODO: hero GIF of M1 gameplay at 600px wide -->
-<!-- ![Linux Jr — M1 gameplay](./docs/screenshots/hero.gif) -->
+![Linux Jr Arcade — capturing the first flag](./docs/screenshots/hero.gif)
+
+> Reproducible: `bun run scripts/record-hero-gif.mjs` (needs `playwright install chromium` + `ffmpeg`).
 
 ---
 
