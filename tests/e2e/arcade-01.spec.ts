@@ -14,7 +14,11 @@ import { test, expect } from '@playwright/test'
 
 async function startArcade(page) {
   await page.goto('/')
-  await page.evaluate(() => localStorage.clear())
+  await page.evaluate(() => {
+    localStorage.clear()
+    // Skip the first-run parent hint card so we land directly on the disclaimer.
+    localStorage.setItem('linuxjr-parent-seen', 'true')
+  })
   await page.reload()
   await expect(page.getByText('Linux Jr')).toBeVisible()
   await page.getByRole('button', { name: /let.s hack/i }).click()
