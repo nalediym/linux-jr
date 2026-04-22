@@ -1,0 +1,51 @@
+# CodeRabbit config — AI code review.
+#
+# Phase 4 of the DevOps plan. Free tier for public repos.
+# CodeRabbit posts review comments on every PR.
+#
+# Activation: install CodeRabbit GitHub App on nalediym/linux-jr.
+# https://coderabbit.ai/
+
+reviews:
+  profile: chill       # solo builder — minimize nitpicks, focus on real issues
+  request_changes_workflow: false
+  high_level_summary: true
+  poem: false          # keep reviews professional
+  review_status: true
+  collapse_walkthrough: true
+  auto_review:
+    enabled: true
+    drafts: false      # don't waste cycles on draft PRs
+    base_branches:
+      - main
+  path_filters:
+    # Don't review auto-generated or compiled content
+    - "!dist/**"
+    - "!node_modules/**"
+    - "!kb/raw/**"          # KB raw sources are mirrors — review the source, not the copy
+    - "!kb/wiki/sources/**" # same
+    - "!public/audio/**"    # binary MP3s
+    - "!bun.lock"
+    - "!package-lock.json"
+  path_instructions:
+    - path: "src/data/missions/**"
+      instructions: |
+        Mission content. Check: (a) all copy respects SOUL.md never-say
+        list (no "wrong", "failed", "stupid", etc.); (b) character names
+        are canonical (Pip, Captain Rex, Sprocket, Juno — not Bingo/
+        Bandit/Chilli from the retired Bluey cast); (c) FLAG{...} format
+        matches existing conventions.
+    - path: "src/components/Terminal.jsx"
+      instructions: |
+        This is the beating heart of the game. SOUL.md rule #1: the
+        terminal IS the whole product — NO modal cards or overlay
+        screens covering the terminal. Flag any JSX that would render a
+        full-screen overlay instead of inline terminal output.
+    - path: "kb/wiki/concepts/**"
+      instructions: |
+        Compiled knowledge base. Do not review these directly — they are
+        generated from scratchpad bible sources. Flag if they're
+        drifting from the missions they describe.
+
+chat:
+  auto_reply: true
