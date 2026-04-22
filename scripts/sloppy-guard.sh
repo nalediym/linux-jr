@@ -38,6 +38,17 @@ header() { printf "\n${BOLD}${CYAN}▸ %s${RESET}\n" "$1"; }
 
 # ─── HARD checks ──────────────────────────────────────────────────────
 
+header "INSIGHT: Public-repo context (Phase 7.5)"
+REMOTE=$(git remote get-url origin 2>/dev/null || echo "")
+if printf "%s" "$REMOTE" | grep -q 'nalediym/linux-jr'; then
+  info "🌍 nalediym/linux-jr — PUBLIC REPO — see PROTOCOLS.md"
+  # Late-night check — ADHD-safe reminder
+  HOUR=$(date +%H)
+  if [ "$HOUR" -lt 7 ] || [ "$HOUR" -ge 22 ]; then
+    warn "it's ${HOUR}:00 — outside 7 AM–10 PM window. Consider closing the laptop."
+  fi
+fi
+
 header "HARD: Lint"
 if bun run lint >/dev/null 2>&1; then
   pass "bun run lint is clean"

@@ -28,6 +28,8 @@
     "prose": "alex README.md docs/**/*.md",
     "changeset": "changeset",
     "release": "changeset version",
+    "session:start": "bash scripts/session-start.sh",
+    "session:end": "bash scripts/session-end.sh",
     "postinstall": "lefthook install 2>/dev/null || true",
     "cli:build": "bun run --filter linuxjr build",
     "cli:test": "bun run --filter linuxjr test",
