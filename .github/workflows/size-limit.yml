@@ -1,0 +1,21 @@
+name: size-limit
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  size:
+    name: bundle-size budget
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - run: bun install --frozen-lockfile
+      - run: bun run build
+      - name: Check bundle size
+        run: bunx --bun size-limit

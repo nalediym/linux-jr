@@ -1,0 +1,42 @@
+name: Prose lint
+
+on:
+  pull_request:
+    paths:
+      - '**/*.md'
+      - '**/*.mdx'
+      - 'src/data/missions/**/*.js'
+      - '.vale/**'
+      - '.vale.ini'
+
+jobs:
+  vale:
+    name: vale
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Vale
+        uses: errata-ai/vale-action@reviewdog
+        with:
+          # Fail the job on error-level findings (SOUL.md banned words)
+          fail_on_error: true
+          # Only scan changed files
+          files: all
+          version: 3.9.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  alex:
+    name: alex (inclusive language)
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: alex
+        run: bunx --bun alex --diff README.md docs/**/*.md src/data/missions/*.js || true

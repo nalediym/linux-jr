@@ -21,6 +21,11 @@
     "guard": "bash scripts/sloppy-guard.sh",
     "preview": "vite preview",
     "knip": "knip",
+    "size": "size-limit",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "lighthouse": "lhci autorun",
+    "prose": "alex README.md docs/**/*.md",
     "changeset": "changeset",
     "release": "changeset version",
     "postinstall": "lefthook install 2>/dev/null || true",
@@ -44,9 +49,13 @@
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "@eslint/js": "^9.39.4",
+    "@lhci/cli": "^0.15.1",
+    "@playwright/test": "^1.59.1",
+    "@size-limit/file": "^12.1.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "alex": "^11.0.1",
     "eslint": "^9.39.4",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.5.2",
@@ -54,6 +63,7 @@
     "knip": "^6.6.0",
     "lefthook": "^2.1.6",
     "lint-staged": "^16.4.0",
+    "size-limit": "^12.1.0",
     "vite": "^8.0.1"
   }
 }

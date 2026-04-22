@@ -1,0 +1,20 @@
+# Linux Jr — SOUL.md banned words enforced on user-facing prose.
+#
+# These words appear in user-facing copy would violate the SOUL.md
+# "never say" list. This rule errors out when they appear in prose
+# written in quoted strings (mission stories, UI copy) or in README /
+# docs that are public.
+#
+# See SOUL.md "Never say" list for the doctrine.
+
+extends: existence
+message: "SOUL.md banned word: '%s'. See SOUL.md never-say list."
+level: error
+ignorecase: true
+tokens:
+  - wrong
+  - failed
+  - stupid
+  - dumb
+  - bad user
+  - loser
