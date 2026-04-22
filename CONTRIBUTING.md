@@ -42,7 +42,7 @@ soul: add new never-do line about red error styling
 
 ### Special commit markers
 
-- `REJECTED:` in the commit subject → a design direction was tried and walked back. Lives as a historical tombstone. Example: `REJECTED: 6-beat mission shape with modal cards`. The `/blog-draft` workflow (Phase 5) auto-drafts a post when these commits land.
+- `REJECTED:` in the commit subject → a design direction was tried and walked back. Lives as a historical tombstone. Example: `REJECTED: 6-beat mission shape with modal cards`. Capture the lesson in a follow-up issue or draft doc when it is worth preserving.
 - `FIX-INCIDENT:` → a sloppy pattern escaped to prod; commit adds a new guard check to prevent recurrence. Pairs with a Sloppy Guard update that documents the incident.
 
 ## PR workflow
@@ -52,11 +52,11 @@ soul: add new never-do line about red error styling
 3. `bun run guard` passes locally
 4. `git push -u origin feat/my-thing`
 5. `gh pr create` (template pre-fills the SOUL.md checklist)
-6. CI runs: lint, build, Sloppy Guard, gitleaks, prose lint (Vale + alex), bundle-size, Lighthouse CI, Playwright, CodeRabbit AI review
+6. CI runs: lint, build, Sloppy Guard, gitleaks, prose lint (Vale + alex), bundle-size, Lighthouse CI, Playwright, and optionally CodeRabbit if the app is enabled
 7. Address feedback, re-push
 8. Merge when all HARD checks pass
 
-Stacked PRs are fine. GitHub shipped native stacked PR support in April 2026.
+Stacked PRs are fine for local sequencing, but keep only one merge-ready PR open against `main` at a time and close superseded stack PRs quickly.
 
 ## Review standards — Conventional Comments
 

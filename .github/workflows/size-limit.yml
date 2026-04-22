@@ -2,7 +2,6 @@ name: size-limit
 
 on:
   pull_request:
-    branches: [main]
 
 jobs:
   size:

@@ -2,7 +2,6 @@ name: Lighthouse CI
 
 on:
   pull_request:
-    branches: [main]
 
 jobs:
   lighthouse:
@@ -20,10 +19,9 @@ jobs:
 
       - name: Run Lighthouse CI
         run: |
-          bun add --global @lhci/cli
           # Serve the build and run Lighthouse against it
           bunx --bun vite preview --port 4173 &
           sleep 5
-          lhci autorun --config=.lighthouserc.json --collect.url=http://localhost:4173 || true
+          bunx --bun lhci autorun --config=.lighthouserc.json --collect.url=http://localhost:4173
         env:
           LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
