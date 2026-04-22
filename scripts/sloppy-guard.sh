@@ -71,9 +71,13 @@ for section in "Live demo" "Why I built it" "Stack" "License"; do
 done
 
 header "HARD: No debug statements in src/"
-# Allow console.error (legitimate), block console.log/debug/warn/info and debugger
-if git grep -nE 'console\.(log|debug|info|warn)\(|^[[:space:]]*debugger;?' -- 'src/**/*.js' 'src/**/*.jsx' 2>/dev/null; then
+# Block console.log/debug + debugger. Allow console.warn/error/info —
+# those are legitimate user/dev messaging, not stray debug cruft.
+# Use grep -rn (not git grep) so untracked files are also scanned.
+DEBUG_HITS=$(grep -rn --include='*.js' --include='*.jsx' -E 'console\.(log|debug)\(|^[[:space:]]*debugger;?' src/ 2>/dev/null || true)
+if [ -n "$DEBUG_HITS" ]; then
   fail "Found debug statements in src/ — remove before shipping"
+  printf "%s\n" "$DEBUG_HITS" | head -5 | sed 's/^/      /'
 else
   pass "no stray console.log/debugger in src/"
 fi
@@ -90,12 +94,14 @@ fi
 # ─── SOFT checks (warn, don't block) ──────────────────────────────────
 
 header "SOFT: Orphan TODOs / FIXMEs"
-# TODOs without a ticket reference like TODO(#42) or TODO(NJ-12)
-ORPHAN_TODOS=$(git grep -nE '(TODO|FIXME|XXX|HACK)([^(]|$)' \
+# TODOs without a ticket reference like TODO(#42) or TODO(NJ-12).
+# Match only real TODO markers: `TODO:`, `TODO ` (space), or TODO at end.
+# Don't match the word "TODOs" in prose.
+ORPHAN_TODOS=$(git grep -nE '(TODO|FIXME|XXX|HACK)(:|[[:space:]]|$)' \
   -- 'src/**/*.js' 'src/**/*.jsx' 'src/**/*.md' \
      'scripts/**/*.sh' 'scripts/**/*.js' \
      '*.md' \
-  ':!scripts/sloppy-guard.sh' 2>/dev/null | grep -v 'TODO(' || true)
+  ':!scripts/sloppy-guard.sh' ':!README.md' 2>/dev/null | grep -v 'TODO(' || true)
 if [ -n "$ORPHAN_TODOS" ]; then
   warn "orphan TODO/FIXME without ticket reference"
   printf "%s\n" "$ORPHAN_TODOS" | head -5 | sed 's/^/      /'
