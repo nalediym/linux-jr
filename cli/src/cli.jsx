@@ -30,7 +30,7 @@ Commands inside the game:
   Ctrl+C      exit anytime
 
 Missions: ${ALL_MISSIONS.length} available (${ALL_MISSIONS.map(m => m.title).join(', ')})
-Docs: https://linux-jr.vercel.app`)
+Docs: https://linuxjr.dev`)
   process.exit(0)
 }
 

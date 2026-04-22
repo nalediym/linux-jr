@@ -25,7 +25,7 @@
 >
 > They graduate to a real shell with nothing to unlearn.
 >
-> https://linux-jr.vercel.app
+> https://linuxjr.dev
 
 ## Tweet 3 (soul)
 
@@ -55,7 +55,7 @@
 > If you sit a kid down with this, the post-capture feedback panel saves to
 > localStorage — copy the JSON to me, I'd love to learn.
 >
-> 🔗 https://linux-jr.vercel.app
+> 🔗 https://linuxjr.dev
 
 ---
 

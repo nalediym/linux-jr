@@ -31,7 +31,7 @@
 
 ## What counts as "prod regression"
 
-Anything that pushes an SLO into the red on the live `linux-jr.vercel.app`
+Anything that pushes an SLO into the red on the live `linuxjr.dev`
 deployment for more than the specified window.
 
 ## Rollback policy

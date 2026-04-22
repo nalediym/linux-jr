@@ -2,7 +2,7 @@
 
 > **A browser-based Linux terminal for kids.** Teaches real commands through missions, not lessons — so when they grow up and open Terminal.app, the muscle memory is already there.
 
-**Live demo:** https://linux-jr.vercel.app &nbsp;·&nbsp; **CLI:** `npx linuxjr` &nbsp;·&nbsp; [SOUL.md](./SOUL.md)
+**Live demo:** https://linuxjr.dev &nbsp;·&nbsp; **CLI:** `npx linuxjr` &nbsp;·&nbsp; [SOUL.md](./SOUL.md)
 
 ![Linux Jr Arcade — capturing the first flag](./docs/screenshots/hero.gif)
 
@@ -29,7 +29,7 @@ Linux Jr flips that. Every command the kid types is **the same command** running
 ### Web
 ```bash
 # just go to the live site
-open https://linux-jr.vercel.app
+open https://linuxjr.dev
 ```
 
 ### Terminal (real shell)

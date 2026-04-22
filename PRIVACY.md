@@ -13,7 +13,7 @@ interaction. No part of it ever reaches a server we control.
 
 ## What we store on the device
 
-These keys live in the browser's `localStorage`, scoped to the linux-jr.vercel.app
+These keys live in the browser's `localStorage`, scoped to the linuxjr.dev
 origin. They never leave the device unless the user explicitly exports them.
 
 | Key | Purpose | Example |

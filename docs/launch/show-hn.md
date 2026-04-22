@@ -50,7 +50,7 @@ A few design experiments I care about more than the game itself:
    Bandit level or picoCTF challenge it adapts. Kid graduates with the muscle
    memory to actually play those platforms.
 
-Try it: https://linux-jr.vercel.app
+Try it: https://linuxjr.dev
 
 Source: https://github.com/nalediym/linux-jr (MIT)
 
