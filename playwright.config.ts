@@ -16,7 +16,7 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
 
   use: {
-    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5200',
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || 'http://127.0.0.1:5200',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -33,7 +33,7 @@ export default defineConfig({
     ? undefined
     : {
         command: 'bun run dev',
-        url: 'http://localhost:5200',
+        url: 'http://127.0.0.1:5200',
         reuseExistingServer: !process.env.CI,
         timeout: 60 * 1000,
       },
