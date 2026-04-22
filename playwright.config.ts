@@ -32,9 +32,9 @@ export default defineConfig({
   webServer: process.env.PLAYWRIGHT_BASE_URL
     ? undefined
     : {
-        command: 'bun run dev',
+        command: 'bun run preview',
         url: 'http://127.0.0.1:5200',
         reuseExistingServer: !process.env.CI,
-        timeout: 60 * 1000,
+        timeout: 120 * 1000,
       },
 })
