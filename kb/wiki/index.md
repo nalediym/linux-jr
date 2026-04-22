@@ -1,8 +1,8 @@
 # Knowledge Base Index
 
 > Auto-maintained by `/knowledge-base compile`. Do not edit manually.
-> Last compiled: 2026-04-21T20:12:00Z
-> Sources: 17 | Concepts: 27 | Words: ~12,425
+> Last compiled: 2026-04-22T00:00:00Z
+> Sources: 27 | Concepts: 32 | Words: ~14,800
 
 ## Sources
 
@@ -28,6 +28,18 @@
 
 ### Project rules
 - [CLAUDE.md](sources/CLAUDE.md.md) — stack, architecture, kid UX, adding a mission
+
+### CTF beginner sources — `kb/raw/ctf-beginner/` (Arcade lineage)
+- [bandit-overview](sources/ctf-beginner--bandit-overview.md.md) — OverTheWire Bandit premise, audience, level structure
+- [bandit-level-0-to-1](sources/ctf-beginner--bandit-level-0-to-1.md.md) — `cat readme` (canonical Arcade Game #1 source)
+- [bandit-level-1-to-2](sources/ctf-beginner--bandit-level-1-to-2.md.md) — `cat ./-` (file named dash)
+- [bandit-level-2-to-3](sources/ctf-beginner--bandit-level-2-to-3.md.md) — quoted `cat` (filename with spaces)
+- [bandit-level-3-to-4](sources/ctf-beginner--bandit-level-3-to-4.md.md) — `ls -a` (hidden dotfiles)
+- [bandit-level-4-to-5](sources/ctf-beginner--bandit-level-4-to-5.md.md) — `file ./*` (identify readable file)
+- [bandit-level-5-to-6](sources/ctf-beginner--bandit-level-5-to-6.md.md) — `find -size` (predicate composition)
+- [bandit-level-6-to-7](sources/ctf-beginner--bandit-level-6-to-7.md.md) — `grep PATTERN FILE` *(unverified — bandit7.html 404)*
+- [picoctf-overview](sources/ctf-beginner--picoctf-overview.md.md) — General Skills category, common encoding/text puzzles
+- [htb-starting-point](sources/ctf-beginner--htb-starting-point.md.md) — Tier 0/1 structure, `HTB{}` flag-format origin *(unverified — page 500)*
 
 ## Concepts
 
@@ -71,6 +83,13 @@
 
 ### Implementation
 - [stack-architecture](concepts/stack-architecture.md) — React/Vite/bun stack and module boundaries
+
+### Arcade — CTF lineage
+- [cat-command](concepts/cat-command.md) — read file contents (Game #1 primitive)
+- [grep-command](concepts/grep-command.md) — search file for pattern (Game #7)
+- [find-command](concepts/find-command.md) — search filesystem by predicate (Game #6)
+- [file-command](concepts/file-command.md) — identify file type (Game #5)
+- [flag-format](concepts/flag-format.md) — `FLAG{snake_case}` convention (cross-game)
 
 ## Uncategorized Claims (singletons)
 

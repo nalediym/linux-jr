@@ -4,6 +4,7 @@ import { executeCommand } from './CommandParser'
 import { createMissionEngine } from './MissionEngine'
 import { playVoice, unlockAudio, VOICE_LINES } from '../hooks/useVoice'
 import { ALL_MISSIONS, getCompletedMissionIds } from '../data/missions/index'
+import { ALL_ARCADE_GAMES, arcadeToMission, getCompletedArcadeIds } from '../data/arcade/index'
 import { playSound } from '../hooks/useTerminalSounds'
 import { createTelemetry } from '../hooks/useTelemetry'
 
@@ -32,24 +33,27 @@ export default function Terminal() {
   const [screen, setScreen] = useState(() => {
     // Auto-skip disclaimer if already accepted (read once at mount).
     try {
-      return localStorage.getItem('linuxjr-disclaimer-accepted') === 'true' ? 'select' : 'disclaimer'
+      return localStorage.getItem('linuxjr-disclaimer-accepted') === 'true' ? 'home' : 'disclaimer'
     } catch {
       return 'disclaimer'
     }
-  }) // disclaimer | select | playing
+  }) // disclaimer | home | campaign-select | arcade-grid | playing
   const outputRef = useRef(null)
   const inputRef = useRef(null)
   const fsRef = useRef(null)
   const missionRef = useRef(null)
   const activeMissionRef = useRef(null)
   const telemetryRef = useRef(null)
+  // Tracks which screen the player came from so mission-complete returns there.
+  const originScreenRef = useRef('campaign-select')
 
   function addLine(text, type = 'output') {
     setLines(prev => [...prev, { text, type, ts: Date.now() }])
   }
 
-  function startMission(mission) {
+  function startMission(mission, origin = 'campaign-select') {
     activeMissionRef.current = mission
+    originScreenRef.current = origin
     fsRef.current = createFileSystem(structuredClone(mission.filesystem))
     missionRef.current = createMissionEngine(mission)
     telemetryRef.current = createTelemetry(mission.id)
@@ -164,12 +168,14 @@ export default function Terminal() {
           }
           const am = activeMissionRef.current
           playVoice(am?.audio?.complete || VOICE_LINES.missionComplete.key, VOICE_LINES.missionComplete.text)
-          setTimeout(() => setScreen('select'), 5000)
+          const returnTo = originScreenRef.current || 'campaign-select'
+          setTimeout(() => setScreen(returnTo), 5000)
 
-          // Save completion
+          // Save completion — arcade games go in their own array
           try {
             const saved = JSON.parse(localStorage.getItem('linuxjr-progress') || '{}')
-            saved.missionsCompleted = [...(saved.missionsCompleted || []), progress.missionId]
+            const completionKey = returnTo === 'arcade-grid' ? 'arcadeCompleted' : 'missionsCompleted'
+            saved[completionKey] = [...(saved[completionKey] || []), progress.missionId]
             saved.currentMission = null
             localStorage.setItem('linuxjr-progress', JSON.stringify(saved))
           } catch {}
@@ -242,7 +248,7 @@ export default function Terminal() {
   function handleAccept() {
     try { localStorage.setItem('linuxjr-disclaimer-accepted', 'true') } catch {}
     unlockAudio()
-    setScreen('select')
+    setScreen('home')
   }
 
   if (screen === 'disclaimer') {
@@ -298,7 +304,215 @@ export default function Terminal() {
     )
   }
 
-  if (screen === 'select') {
+  if (screen === 'home') {
+    return (
+      <div style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: '2rem',
+        padding: '2rem',
+        fontFamily: 'var(--font-ui)',
+      }}>
+        <h1 style={{
+          fontSize: '2.4rem',
+          color: 'var(--terminal-green)',
+          fontFamily: 'var(--font-mono)',
+          textAlign: 'center',
+          margin: 0,
+        }}>
+          Linux Jr
+        </h1>
+        <p style={{
+          color: 'var(--terminal-dim)',
+          fontSize: '1rem',
+          textAlign: 'center',
+          margin: 0,
+        }}>
+          Pick how you want to hack.
+        </p>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+          width: '100%',
+          maxWidth: '320px',
+        }}>
+          <button
+            onClick={() => setScreen('campaign-select')}
+            style={{
+              padding: '1.5rem 1.25rem',
+              fontSize: '1.3rem',
+              fontFamily: 'var(--font-ui)',
+              fontWeight: 700,
+              background: '#1a1a1a',
+              color: 'var(--terminal-green)',
+              border: '2px solid var(--terminal-green)',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              minHeight: '64px',
+              textAlign: 'left',
+            }}
+          >
+            CAMPAIGN
+            <div style={{
+              fontSize: '0.85rem',
+              color: 'var(--terminal-dim)',
+              fontWeight: 400,
+              marginTop: '0.25rem',
+            }}>
+              Story missions, in order.
+            </div>
+          </button>
+          <button
+            onClick={() => setScreen('arcade-grid')}
+            style={{
+              padding: '1.5rem 1.25rem',
+              fontSize: '1.3rem',
+              fontFamily: 'var(--font-ui)',
+              fontWeight: 700,
+              background: '#1a1a1a',
+              color: 'var(--terminal-yellow)',
+              border: '2px solid var(--terminal-yellow)',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              minHeight: '64px',
+              textAlign: 'left',
+            }}
+          >
+            ARCADE
+            <div style={{
+              fontSize: '0.85rem',
+              color: 'var(--terminal-dim)',
+              fontWeight: 400,
+              marginTop: '0.25rem',
+            }}>
+              CTF puzzles. Play in any order.
+            </div>
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  if (screen === 'arcade-grid') {
+    const completedIds = getCompletedArcadeIds()
+    return (
+      <div style={{
+        height: '100%',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '2rem',
+        fontFamily: 'var(--font-ui)',
+        overflowY: 'auto',
+      }}>
+        <h1 style={{
+          fontSize: '2rem',
+          color: 'var(--terminal-yellow)',
+          fontFamily: 'var(--font-mono)',
+          textAlign: 'center',
+          marginBottom: '0.5rem',
+        }}>
+          Arcade
+        </h1>
+        <p style={{
+          color: 'var(--terminal-dim)',
+          fontSize: '1rem',
+          textAlign: 'center',
+          marginBottom: '1.5rem',
+        }}>
+          {completedIds.length === 0
+            ? 'Capture the flag.'
+            : `${completedIds.length} of ${ALL_ARCADE_GAMES.length} flags captured`}
+        </p>
+        <button
+          onClick={() => setScreen('home')}
+          style={{
+            background: 'transparent',
+            color: 'var(--terminal-dim)',
+            border: '1px solid var(--terminal-dim)',
+            borderRadius: '8px',
+            padding: '0.5rem 1rem',
+            fontSize: '0.9rem',
+            fontFamily: 'var(--font-ui)',
+            cursor: 'pointer',
+            marginBottom: '1.5rem',
+            minHeight: '40px',
+          }}
+        >
+          ← Back
+        </button>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1rem',
+          width: '100%',
+          maxWidth: '400px',
+        }}>
+          {ALL_ARCADE_GAMES.map(game => {
+            const done = completedIds.includes(game.id)
+            return (
+              <button
+                key={game.id}
+                onClick={() => startMission(arcadeToMission(game), 'arcade-grid')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  padding: '1rem 1.25rem',
+                  background: '#1a1a1a',
+                  border: done
+                    ? '2px solid var(--terminal-green)'
+                    : '2px solid var(--terminal-yellow)',
+                  borderRadius: '12px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  transition: 'all 0.15s',
+                  width: '100%',
+                  minHeight: '64px',
+                }}
+                aria-label={`Play ${game.title}`}
+              >
+                <span style={{
+                  fontSize: '1.5rem',
+                  width: '2.5rem',
+                  textAlign: 'center',
+                  flexShrink: 0,
+                  fontFamily: 'var(--font-mono)',
+                  color: done ? 'var(--terminal-green)' : 'var(--terminal-yellow)',
+                }}>
+                  {done ? '✓' : '⚑'}
+                </span>
+                <div style={{ flex: 1 }}>
+                  <div style={{
+                    fontSize: '1.1rem',
+                    fontWeight: 600,
+                    color: done ? 'var(--terminal-green)' : 'var(--text)',
+                    fontFamily: 'var(--font-ui)',
+                  }}>
+                    {game.title}
+                  </div>
+                  <div style={{
+                    fontSize: '0.85rem',
+                    color: 'var(--terminal-dim)',
+                    marginTop: '0.25rem',
+                    lineHeight: 1.4,
+                  }}>
+                    {game.summary}
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
+
+  if (screen === 'campaign-select') {
     const completedIds = getCompletedMissionIds()
     return (
       <div style={{
@@ -323,12 +537,29 @@ export default function Terminal() {
           color: 'var(--terminal-dim)',
           fontSize: '1rem',
           textAlign: 'center',
-          marginBottom: '2rem',
+          marginBottom: '1rem',
         }}>
           {completedIds.length === 0
             ? 'Choose your first mission, hacker.'
             : `${completedIds.length} of ${ALL_MISSIONS.length} missions complete`}
         </p>
+        <button
+          onClick={() => setScreen('home')}
+          style={{
+            background: 'transparent',
+            color: 'var(--terminal-dim)',
+            border: '1px solid var(--terminal-dim)',
+            borderRadius: '8px',
+            padding: '0.5rem 1rem',
+            fontSize: '0.9rem',
+            fontFamily: 'var(--font-ui)',
+            cursor: 'pointer',
+            marginBottom: '1.5rem',
+            minHeight: '40px',
+          }}
+        >
+          ← Back
+        </button>
         <div style={{
           display: 'flex',
           flexDirection: 'column',
@@ -344,7 +575,7 @@ export default function Terminal() {
             return (
               <button
                 key={mission.id}
-                onClick={() => !locked && startMission(mission)}
+                onClick={() => !locked && startMission(mission, 'campaign-select')}
                 style={{
                   display: 'flex',
                   alignItems: 'center',

@@ -24,7 +24,10 @@ test.describe('Mission 01: The Missing Blueprint', () => {
     await expect(page.getByText('Linux Jr')).toBeVisible()
     await page.getByRole('button', { name: /let.s hack/i }).click()
 
-    // Mission select — click The Missing Blueprint
+    // Home screen — pick CAMPAIGN
+    await page.getByRole('button', { name: /^CAMPAIGN/i }).click()
+
+    // Campaign select — click The Missing Blueprint
     await expect(page.getByText('The Missing Blueprint')).toBeVisible()
     await page.getByText('The Missing Blueprint').click()
 
