@@ -3,6 +3,9 @@ name: Playwright E2E
 on:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   smoke:
     name: M1 smoke test
