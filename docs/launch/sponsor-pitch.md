@@ -12,7 +12,7 @@ commands through story missions and CTF-style puzzles, not pretend languages.
 A kid who spends a season here graduates to a real terminal with no muscle
 memory to unlearn.
 
-Live: https://linux-jr.vercel.app
+Live: https://linuxjr.dev
 Source: https://github.com/nalediym/linux-jr (MIT)
 Status: shipped. Three campaign missions, nine arcade puzzles, web + CLI
 (`npx linuxjr`). 138 unit tests, 7 e2e tests, full SOUL.md doctrine doc.

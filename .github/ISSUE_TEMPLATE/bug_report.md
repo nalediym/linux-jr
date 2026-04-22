@@ -17,7 +17,7 @@ assignees: ''
 ## Where
 
 - Device: [iPad Safari / Mac Chrome / Windows Edge / etc.]
-- URL: [linux-jr.vercel.app / localhost]
+- URL: [linuxjr.dev / localhost]
 - Mission: [M1 / M2 / M3]
 - Screen: [welcome / mission select / playing]
 
