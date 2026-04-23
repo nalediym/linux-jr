@@ -35,7 +35,7 @@
     "prepublishOnly": "bun run build && bun run test"
   },
   "dependencies": {
-    "ink": "^5.1.0",
+    "ink": "^7.0.1",
     "ink-text-input": "^6.0.0",
     "react": "^18.3.1"
   },
